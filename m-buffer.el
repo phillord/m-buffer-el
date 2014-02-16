@@ -4,7 +4,7 @@
 
 ;; Author: Phillip Lord <phillip.lord@newcastle.ac.uk>
 ;; Maintainer: Phillip Lord <phillip.lord@newcastle.ac.uk>
-;; Version: 0.1
+;; Version: 0.2-SNAPSHOT
 
 ;; The contents of this file are subject to the GPL License, Version 3.0.
 ;;
@@ -44,82 +44,129 @@
 ;;; Code:
 (require 'dash)
 
-
-(defun m-buffer-matches-data (buffer regexp &optional beginning end)
-  "Return a list of markers to all matches in BUFFER to REGEXP.
-After use, call `m-buffer-nil-markers' to ensure that markers no longer
-point to anything which may otherwise slow buffer movement down."
+;;
+;; Regexp matching
+;;
+(defun m-buffer-match-data (buffer regexp &optional beginning end post-match)
+  "Return a list of `match-data' for all matches in BUFFER to REGEXP.
+Only matches between BEGINNING and END are returned. After a
+match the function POST-MATCH is called. The buffer is searched
+forward."
   (save-match-data
     (save-excursion
       (with-current-buffer
           buffer
-        (let ((rtn nil))
+        (let ((rtn nil)
+              (post-match-return t))
           (goto-char
            (or beginning
                (point-min)))
           (while
-              (re-search-forward
-               regexp
-               (or end (point-max))
-               t)
+              (and
+               post-match-return
+               (re-search-forward
+                regexp
+                (or end (point-max))
+                t))
             (setq rtn
                   (cons
                    (match-data)
-                   rtn)))
+                   rtn))
+            (when post-match
+              (setq post-match-return (funcall post-match))))
           (reverse rtn))))))
 
-(defun m-buffer-matches-beginning-n (matches n)
-  "Given match-data returns beginning of nth group.
-Use `m-buffer-matches' to generate matches and
-`m-buffer-nil-markers' after the markers have been finished with
-or they will slow future use of the buffer."
+(defun m-buffer-ensure-match (&rest matchers)
+  "Ensure that we have match data.
+If a single arg, assume it is match data and return. If multiple
+args, assume they are of the form \"buffer regexp &optional
+beginning end\", and convert them into matches."
+  (cond
+   ;; we have match data
+   ((= 1 (length matchers))
+    (car matchers))
+   ((< 1 (length matchers))
+    (apply 'm-buffer-match-data matchers))
+   (t
+    (error "Wrong number of arguments"))))
+
+(defun m-buffer-match-beginning-n (n &rest matchers)
+  "Return markers to the start of the match to the nth group.
+MATCHERS may be of any form accepted by
+`m-buffer-ensure-match'. Use `m-buffer-nil-markers' after the
+markers have been finished with or they will slow future use of
+the buffer."
   (-map
    (lambda (match)
      (nth
       (* 2 n) match))
-   matches))
+   (apply 'm-buffer-ensure-match matchers)))
 
-(defun m-buffer-matches-beginning (buffer regexp &optional beginning end)
-  "Returns a list of markers to the start of matches to regexp in buffer.
-Use `m-buffer-nil-markers' after the markers have been used or
-they will slow future changes to the buffer."
-  (-map
-   (lambda (match-data)
-     (car match-data))
-   (m-buffer-matches-data buffer regexp beginning end)))
+(defun m-buffer-match-beginning-n-pos (n &rest matchers)
+  "Return positions of the start of the match to the nth group.
+MATCHERS may be of any form accepted by `m-buffer-ensure-match'.
+If `match-data' is passed markers will be set to nil after this
+function. See `m-buffer-nil-markers' for details."
+  (m-buffer-markers-to-pos-nil
+   (apply 'm-buffer-match-beginning-n
+          n matchers)))
 
-(defun m-buffer-matches-beginning-pos (buffer regexp &optional beginning end)
-  (m-buffer-markers-to-pos
-   (m-buffer-matches-beginning buffer regexp beginning end)))
+(defun m-buffer-match-beginning (&rest matchers)
+  "Returns a list of markers to the start of matches.
+MATCHERS may of any form accepted by `m-buffer-ensure-match'. Use
+`m-buffer-nil-markers' after the markers have been used or they
+will slow future changes to the buffer."
+  (apply 'm-buffer-match-beginning-n 0 matchers))
 
-(defun m-buffer-matches-end-n (matches n)
-  "Given match-data returns end of nth group.
-Use `m-buffer-matches' to generate matches."
+(defun m-buffer-match-beginning-pos (&rest matchers)
+  "Returns a list of positions at the start of matcher.
+MATCHERS may be of any form accepted by `m-buffer-ensure-match'.
+If `match-data' is passed markers will be set to nil after this
+function. See `m-buffer-nil-markers' for details."
+  (apply 'm-buffer-match-beginning-n-pos 0 matchers))
+
+(defun m-buffer-match-end-n (n &rest matchers)
+  "Returns markers to the end of the match to the nth group.
+MATCHERS may be of any form accepted by `m-buffer-ensure-match'.
+If `match-data' is passed markers will be set to nil after this
+function. See `m-buffer-nil-markers' for details."
   (-map
    (lambda (match)
      (nth
       (+ 1 (* 2 n))
       match))
-   matches))
+   (apply 'm-buffer-ensure-match matchers)))
 
-(defun m-buffer-matches-end (buffer regexp &optional beginning end)
+(defun m-buffer-match-end-n-pos (n &rest matchers)
+  "Return positions of the end of the match to the nth group.
+MATCHERS may be of any form accepted by `m-buffer-ensure-match'.
+If `match-data' is passed markers will be set to nil after this
+function. See `m-buffer-nil-markers' for details."
+  (m-buffer-markers-to-pos-nil
+   (apply 'm-buffer-match-end-n-pos
+          n matchers)))
+
+(defun m-buffer-match-end (&rest matchers)
   "Returns a list of markers to the end of matches to regexp in buffer.
-Use `m-buffer-nil-markers' after the markers have been used or they will slow
-future changes to the buffer."
-  (-map
-   (lambda (match-data)
-     (nth 1 match-data))
-   (m-buffer-matches-data buffer regexp beginning end)))
+MATCHERS may be of any form accepted by `m-buffer-ensure-match'.
+Use `m-buffer-nil-markers' after the markers have been used or
+they will slow future changes to the buffer."
+  (apply 'm-buffer-match-end-n 0 matchers))
 
-(defun m-buffer-matches-end-pos (buffer regexp &optional beginning end)
-  "Returns a list of positions of the end of matches in BUFFER to
-REGEXP."
-  (m-buffers-markers-to-pos
-   (m-buffer-matches-end buffer regexp beginning end)))
+(defun m-buffer-match-end-pos (&rest matchers)
+  "Returns a list of positions to the end of the matches.
+MATCHERS may be of any form accepted by `m-buffer-ensure-match'.
+If `match-data' is passed markers will be set to nil after this
+function. See `m-buffer-nil-markers' for details."
+  (m-buffers-markers-to-pos-nil
+   (apply 'm-buffer-match-end matchers)))
 
 ;; marker/position utility functions
 (defun m-buffer-nil-markers (markers)
-  "Takes a (nested) list of markers and nils them all."
+  "Takes a (nested) list of markers and nils them all.
+Markers slow buffer movement while they are pointing at a
+specific location, until they have been garbage collected. Niling
+them prevents this. See Info node `(elisp) Overview of Markers'."
   (-map
    (lambda (marker)
      (set-marker marker nil))
@@ -129,7 +176,7 @@ REGEXP."
   "Transforms a list of markers to a list of positions.
 If the markers are no longer needed, set postnil to true, or call
 `m-buffer-nil-markers' manually after use to speed future buffer
-movement."
+movement. Or use `m-buffer-markers-to-pos-nil'."
   (-map
    (lambda (marker)
      (prog1
@@ -138,15 +185,20 @@ movement."
          (set-marker marker nil))))
    markers))
 
+(defun m-buffer-markers-to-pos-nil (markers)
+  "Transforms a list of MARKERS to a list of positions then nils.
+See also `m-buffer-nil-markers'"
+  (m-buffer-markers-to-pos markers t))
+
 (defun m-buffer-pos-to-markers (buffer positions)
-  "Translates a set of positions to markers."
+  "In BUFFER ranslates a list of POSITIONS to markers."
   (-map
    (lambda (pos)
      (set-marker
       (make-marker) pos buffer))
    positions))
 
-(defun m-buffer-replace-matches (matches replacement &optional subexp)
+(defun m-buffer-replace-match (matches replacement &optional subexp)
   "Given a list of MATCHES, replace with REPLACEMENT.
 SUBEXP should be a number indicating the regexp group to replace."
   (-map
