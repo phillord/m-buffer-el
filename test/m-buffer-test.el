@@ -17,75 +17,88 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
-(require 'm-buffer)
-
 ;;; Code:
-(defmacro with-temp-buffer-of-file (file &rest body)
+(defvar m-buffer-test-path
+  (directory-file-name
+   (file-name-directory
+    (or load-file-name
+        (buffer-file-name
+         (get-buffer "m-buffer-test.el"))))))
+
+(defmacro m-buffer-wtb-of-file (file &rest body)
   "Run BODY in a temp buffer with the contents of FILE inserted."
   `(with-temp-buffer
-     (insert-file-contents ,file)
+     (insert-file-contents
+      (concat m-buffer-test-path "/"
+              ,file))
      ,@body))
 
 (ert-deftest m-with-temp-buffer-of-file ()
+  "Test my test macro."
   (should
    (equal
     "one\ntwo\nthree\n"
-    (with-temp-buffer-of-file
+    (m-buffer-wtb-of-file
      "with-temp-buffer.txt"
      (buffer-string)))))
+
+(ert-deftest m-buffer-loaded ()
+  "Has m-buffer loaded at all?"
+  (should
+   (fboundp 'm-buffer-match-data)))
 
 (ert-deftest m-buffer-matches ()
   (should
    (= 3
       (length
-       (with-temp-buffer-of-file
+       (m-buffer-wtb-of-file
         "match-data.txt"
-        (m-buffer-matches-data
+        (m-buffer-match-data
          (current-buffer)
          "^one$")))))
   (should
    (-every?
     'markerp
     (-flatten
-     (with-temp-buffer-of-file
+     (m-buffer-wtb-of-file
       "match-data.txt"
-      (m-buffer-matches-data
+      (m-buffer-match-data
        (current-buffer)
        "^one$"))))))
 
-(ert-deftest m-buffer-matches-beginning ()
+(ert-deftest m-buffer-match-beginning ()
   (should
    (-every?
     'markerp
-    (with-temp-buffer-of-file
+    (m-buffer-wtb-of-file
      "match-data.txt"
-     (m-buffer-matches-beginning
+     (m-buffer-match-beginning
       (current-buffer)
       "^one$")))))
 
-(ert-deftest m-buffer-matches-beginning-pos ()
+
+(ert-deftest m-buffer-match-beginning-pos ()
   (should
    (equal
     '(1 9 17)
-    (with-temp-buffer-of-file
+    (m-buffer-wtb-of-file
      "match-data.txt"
-     (m-buffer-matches-beginning-pos
+     (m-buffer-match-beginning-pos
       (current-buffer)
       "^one$")))))
 
 (ert-deftest m-buffer-nil-markers ()
   (should
-   (with-temp-buffer-of-file
+   (m-buffer-wtb-of-file
     "match-data.txt"
     (-all?
      (lambda (marker)
        (and
         (marker-position marker)
         (marker-buffer marker)))
-     (m-buffer-matches-beginning (current-buffer) "^one$"))))
+     (m-buffer-match-beginning (current-buffer) "^one$"))))
   (should
-   (with-temp-buffer-of-file
+   (m-buffer-wtb-of-file
     "match-data.txt"
     (-all?
      (lambda (marker)
@@ -93,19 +106,48 @@
         (not (marker-position marker))
         (not (marker-buffer marker))))
      (m-buffer-nil-markers
-      (m-buffer-matches-beginning (current-buffer) "^one$"))))))
+      (m-buffer-match-beginning (current-buffer) "^one$"))))))
 
 
 (ert-deftest replace-matches ()
   (should
    (equal
     "three\ntwo\nthree\ntwo\nthree\ntwo\n"
-    (with-temp-buffer-of-file
+    (m-buffer-wtb-of-file
      "match-data.txt"
-     (m-buffer-replace-matches
-      (m-buffer-matches-data
+     (m-buffer-replace-match
+      (m-buffer-match-data
        (current-buffer) "^one$") "three")
      (buffer-string)))))
 
-(provide 'm-buffer-test)
+(ert-deftest page-matches ()
+  (should
+   (not
+    (m-buffer-wtb-of-file
+     "match-data.txt"
+     (m-buffer-page-match (current-buffer))))))
+
+(ert-deftest paragraph-separate ()
+  (should
+   (m-buffer-paragraph-separate (current-buffer))))
+
+(ert-deftest line-start ()
+  (should
+   (equal
+    '(1 2 3 5 7 10 13)
+    (m-buffer-wtb-of-file
+     "line-start.txt"
+     (m-buffer-markers-to-pos
+      (m-buffer-line-start (current-buffer)))))))
+
+(ert-deftest line-end ()
+  (should
+   (equal
+    '(1 2 4 6 9 12 13)
+    (m-buffer-wtb-of-file
+       "line-start.txt"
+       (m-buffer-markers-to-pos
+        (m-buffer-line-end (current-buffer)))))))
+
+
 ;;; m-buffer-test.el ends here
