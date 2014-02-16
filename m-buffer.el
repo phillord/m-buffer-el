@@ -160,5 +160,42 @@ SUBEXP should be a number indicating the regexp group to replace."
           (or subexp 0)))))
    matches))
 
+;;;
+;;; Block things detection
+;;;
+(defun m-buffer-page-match (buffer)
+  "Return a list of all page delimiters."
+  (m-buffer-match-data
+   buffer page-delimiter))
+
+(defun m-buffer-paragraph-separate (buffer)
+  (m-buffer-match-data
+   buffer paragraph-separate nil nil
+   'm-buffer-post-match-forward-line))
+
+(defun m-buffer-line-start (buffer)
+  (m-buffer-match-beginning
+   buffer "^" nil nil
+   'm-buffer-post-match-forward-char))
+
+(defun m-buffer-line-end (buffer)
+  (m-buffer-match-beginning
+   buffer "$" nil nil
+   'm-buffer-post-match-forward-char))
+
+;; Useful post-match functions
+(defun m-buffer-post-match-forward-line ()
+  "Attempts to move forward one line and returns true if succeeds."
+  (= 0 (forward-line)))
+
+(defun m-buffer-post-match-forward-char ()
+  "Attempts to move forward one char and returns true if succeeds."
+  (condition-case e
+      (progn
+        (forward-char)
+        t)
+    (error 'end-of-buffer
+           nil)))
+
 (provide 'm-buffer)
 ;;; m-buffer.el ends here
