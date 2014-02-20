@@ -1,6 +1,6 @@
 m-buffer.el
 ===========
-[![Build Status](https://travis-ci.org/phillord/m-buffer.png?branch=master)](https://travis-ci.org/phillord/m-buffer)
+[![Build Status](https://travis-ci.org/phillord/m-buffer-el.png?branch=master)](https://travis-ci.org/[![Build Status](https://travis-ci.org/phillord/m-buffer-el.png?branch=master)](https://travis-ci.org/phillord/m-buffer-el)phillord/m-buffer-el)
 
 ## Introduction
 
