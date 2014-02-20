@@ -47,146 +47,194 @@
 ;;
 ;; Regexp matching
 ;;
-(defun m-buffer-match-data (&rest match-with)
-  "Return a list of `match-data' for all matches based on MATCH-WITH.
-MATCH-WITh may be of the forms:
-BUFFER REGEXP &optional BEGINNING END POST-MATCH
-WINDOW REGEXP &optional POST-MATCH
+(defun m-buffer-match-data (&rest match)
+  "Return a list of `match-data' for all matches based on MATCH.
+MATCH may be of the forms:
+BUFFER REGEXP &optional MATCH-OPTIONS
+WINDOW REGEXP &optional MATCH-OPTIONS
+MATCH-OPTIONS
 
-Matches between BEGINNING and END are returned or for windows
-matches within the visible portion of the window. After a match
-the function POST-MATCH is called. The buffer is searched
-forward."
-  (let* ((norm (m-buffer-normalize-region match-with))
-         (buffer (nth 0 norm))
-         (regexp (nth 1 norm))
-         (beginning (nth 2 norm))
-         (end (nth 3 norm))
-         (post-match (nth 4 norm)))
-    (save-match-data
-      (save-excursion
-        (with-current-buffer
-            buffer
-          (let ((rtn nil)
-                (post-match-return t))
-            (goto-char
-             (or beginning
-                 (point-min)))
-            (while
-                (and
-                 post-match-return
-                 (re-search-forward
-                  regexp
-                  (or end (point-max))
-                  t))
-              (setq rtn
-                    (cons
-                     (match-data)
-                     rtn))
-              (when post-match
-                (setq post-match-return (funcall post-match))))
-            (reverse rtn)))))))
+If BUFFER is given, search this buffer. If WINDOW is given search
+the visible window. MATCH-OPTIONS is a plist with any of the
+following keys:
+:buffer -- the buffer to search
+:regexp -- the regexp to search with
+:beginning -- the start of the region to search
+:end -- the end of the region to search
+:post-match -- function called after a match
 
-(defun m-buffer-normalize-region (match-with)
-  (cond
-   ((bufferp (car match-with))
-    match-with)
-   ((windowp (car match-with))
-    (let ((window (car match-with)))
-      (list
-       (window-buffer window)
-       (cadr match-with)
-       (window-start window)
-       (window-end window)
-       (caadr match-with))))
-   (t (error "Invalid arguments"))))
+If options are expressed in two places, the plist form takes
+precedence over positional args. So calling with both a first
+position buffer and a :buffer arg will use the second. Likewise,
+if a window is given as first arg and :end is given, then
+the :end value will be used.
 
-(defun m-buffer-ensure-match (&rest match-on)
+REGEXP should advance point (i.e. not be zero-width) or the
+function will loop infinitely. POST-MATCH can be used to avoid
+this. The buffer is searched forward."
+  (apply 'm-buffer-match-data-1
+         (m-buffer-normalize-args match)))
+
+(defun m-buffer-match-data-1 (buffer regexp beginning end post-match)
+  "Return a list of `match-data' for all matches.
+
+This is an internal function: please prefer `m-buffer-match-data'.
+
+BUFFER -- the buffer.
+REGEXP -- the regexp.
+BEGINNING -- the start of the region to search
+END -- the end of the region to search
+POST-MATCH -- function to run after each match
+POST-MATCH is useful for zero-width matches which will otherwise cause
+infinite loop. The buffer is searched forward."
+  (save-match-data
+    (save-excursion
+      (with-current-buffer
+          buffer
+        (let ((rtn nil)
+              (post-match-return t))
+          (goto-char
+           (or beginning
+               (point-min)))
+          (while
+              (and
+               post-match-return
+               (re-search-forward
+                regexp
+                (or end (point-max))
+                t))
+            (setq rtn
+                  (cons
+                   (match-data)
+                   rtn))
+            (when post-match
+              (setq post-match-return (funcall post-match))))
+          (reverse rtn))))))
+
+(defun m-buffer-normalize-args (match-with)
+  "Manipulate args into a standard form and return as a list.
+
+This is an internal function."
+  (let* (
+         ;; split up into keyword and non keyword limits
+         (args
+          (-take-while
+           (lambda (x) (not (keywordp x)))
+           match-with))
+         (pargs
+          (-drop-while
+           (lambda (x) (not (keywordp x)))
+           match-with))
+         ;; sort actual actual parameters
+         (first (car args))
+         ;; buffer may be first
+         (buffer
+          (or (plist-get pargs :buffer)
+              (and (bufferp first) first)))
+         ;; or window may be first
+         (window
+          (or (plist-get pargs :window)
+              (and (windowp first) first)))
+         ;; regexp always comes second
+         (regexp
+          (or (plist-get pargs :regexp)
+              (nth 1 args)))
+         ;; beginning depends on other arguments
+         (beginning
+          (or (plist-get pargs :beginning)
+              (and window (window-start window))))
+         ;; end depends on other arguments
+         (end
+          (or (plist-get pargs :end)
+              (and window (window-end window))))
+         ;; pm
+         (post-match
+          (plist-get pargs :post-match)))
+    (list buffer regexp beginning end post-match)))
+
+(defun m-buffer-ensure-match (&rest match)
   "Ensure that we have match data.
 If a single arg, assume it is match data and return. If multiple
-args, and the first argument is a buffer, assume MATCH-ON is of
-form buffer regexp &optional beginning end. If the first argument
-is a window assume MATCH-ON is of form window regexp and search
-only in the visible part of the window."
+args, assume they are of the form accepted by
+`m-buffer-match-data'."
   (cond
    ;; we have match data
-   ((= 1 (length match-on))
-    (car match-on))
-   ((< 1 (length match-on))
-    (apply 'm-buffer-match-data match-on))
+   ((= 1 (length match))
+    (car match))
+   ((< 1 (length match))
+    (apply 'm-buffer-match-data match))
    (t
     (error "Invalid arguments"))))
 
-(defun m-buffer-match-beginning-n (n &rest match-on)
+(defun m-buffer-match-beginning-n (n &rest match)
   "Return markers to the start of the match to the nth group.
-MATCH-ON may be of any form accepted by
-`m-buffer-ensure-match'. Use `m-buffer-nil-markers' after the
-markers have been finished with or they will slow future use of
-the buffer."
+MATCH may be of any form accepted by `m-buffer-ensure-match'. Use
+`m-buffer-nil-markers' after the markers have been finished with
+or they will slow future use of the buffer until garbage collected."
   (-map
-   (lambda (match)
+   (lambda (m)
      (nth
-      (* 2 n) match))
-   (apply 'm-buffer-ensure-match match-on)))
+      (* 2 n) m))
+   (apply 'm-buffer-ensure-match match)))
 
-(defun m-buffer-match-beginning-n-pos (n &rest match-on)
+(defun m-buffer-match-beginning-n-pos (n &rest match)
   "Return positions of the start of the match to the nth group.
-MATCH-ON may be of any form accepted by `m-buffer-ensure-match'.
-If `match-data' is passed markers will be set to nil after this
+MATCH may be of any form accepted by `m-buffer-ensure-match'. If
+`match-data' is passed markers will be set to nil after this
 function. See `m-buffer-nil-markers' for details."
   (m-buffer-markers-to-pos-nil
    (apply 'm-buffer-match-beginning-n
-          n match-on)))
+          n match)))
 
-(defun m-buffer-match-beginning (&rest match-on)
+(defun m-buffer-match-beginning (&rest match)
   "Returns a list of markers to the start of matches.
-MATCH-ON may of any form accepted by `m-buffer-ensure-match'. Use
+MATCH may of any form accepted by `m-buffer-ensure-match'. Use
 `m-buffer-nil-markers' after the markers have been used or they
 will slow future changes to the buffer."
-  (apply 'm-buffer-match-beginning-n 0 match-on))
+  (apply 'm-buffer-match-beginning-n 0 match))
 
-(defun m-buffer-match-beginning-pos (&rest match-on)
+(defun m-buffer-match-beginning-pos (&rest match)
   "Returns a list of positions at the start of matcher.
-MATCH-ON may be of any form accepted by `m-buffer-ensure-match'.
+MATCH may be of any form accepted by `m-buffer-ensure-match'.
 If `match-data' is passed markers will be set to nil after this
 function. See `m-buffer-nil-markers' for details."
-  (apply 'm-buffer-match-beginning-n-pos 0 match-on))
+  (apply 'm-buffer-match-beginning-n-pos 0 match))
 
-(defun m-buffer-match-end-n (n &rest match-on)
+(defun m-buffer-match-end-n (n &rest match)
   "Returns markers to the end of the match to the nth group.
-MATCH-ON may be of any form accepted by `m-buffer-ensure-match'.
+MATCH may be of any form accepted by `m-buffer-ensure-match'.
 If `match-data' is passed markers will be set to nil after this
 function. See `m-buffer-nil-markers' for details."
   (-map
-   (lambda (match)
+   (lambda (m)
      (nth
       (+ 1 (* 2 n))
-      match))
-   (apply 'm-buffer-ensure-match match-on)))
+      m))
+   (apply 'm-buffer-ensure-match match)))
 
-(defun m-buffer-match-end-n-pos (n &rest match-on)
+(defun m-buffer-match-end-n-pos (n &rest match)
   "Return positions of the end of the match to the nth group.
-MATCH-ON may be of any form accepted by `m-buffer-ensure-match'.
+MATCH may be of any form accepted by `m-buffer-ensure-match'.
 If `match-data' is passed markers will be set to nil after this
 function. See `m-buffer-nil-markers' for details."
   (m-buffer-markers-to-pos-nil
    (apply 'm-buffer-match-end-n-pos
-          n match-on)))
+          n match)))
 
-(defun m-buffer-match-end (&rest match-on)
+(defun m-buffer-match-end (&rest match)
   "Returns a list of markers to the end of matches to regexp in buffer.
-MATCH-ON may be of any form accepted by `m-buffer-ensure-match'.
-Use `m-buffer-nil-markers' after the markers have been used or
-they will slow future changes to the buffer."
-  (apply 'm-buffer-match-end-n 0 match-on))
+MATCH may be of any form accepted by `m-buffer-ensure-match'. Use
+`m-buffer-nil-markers' after the markers have been used or they
+will slow future changes to the buffer."
+  (apply 'm-buffer-match-end-n 0 match))
 
-(defun m-buffer-match-end-pos (&rest match-on)
+(defun m-buffer-match-end-pos (&rest match)
   "Returns a list of positions to the end of the matches.
-MATCH-ON may be of any form accepted by `m-buffer-ensure-match'.
+MATCH may be of any form accepted by `m-buffer-ensure-match'.
 If `match-data' is passed markers will be set to nil after this
 function. See `m-buffer-nil-markers' for details."
   (m-buffers-markers-to-pos-nil
-   (apply 'm-buffer-match-end match-on)))
+   (apply 'm-buffer-match-end match)))
 
 ;; marker/position utility functions
 (defun m-buffer-nil-markers (markers)
@@ -225,8 +273,8 @@ See also `m-buffer-nil-markers'"
       (make-marker) pos buffer))
    positions))
 
-(defun m-buffer-replace-match (matches replacement &optional subexp)
-  "Given a list of MATCHES, replace with REPLACEMENT.
+(defun m-buffer-replace-match (match-data replacement &optional subexp)
+  "Given a list of MATCH-DATA, replace with REPLACEMENT.
 SUBEXP should be a number indicating the regexp group to replace."
   (-map
    (lambda (match)
@@ -237,11 +285,10 @@ SUBEXP should be a number indicating the regexp group to replace."
          (replace-match
           replacement nil nil nil
           (or subexp 0)))))
-   matches))
+   match-data))
 
-
-(defun m-buffer-match-string (matches &optional subexp)
-  "Given a list of MATCHES return the string matches optionally
+(defun m-buffer-match-string (match-data &optional subexp)
+  "Given a list of MATCH-DATA return the string matches optionally
 of group SUBEXP."
   (-map
    (lambda (match)
@@ -251,10 +298,10 @@ of group SUBEXP."
          (set-match-data match)
          (match-string
           (or subexp 0)))))
-   matches))
+   match-data))
 
-(defun m-buffer-match-string-no-properties (matches &optional subexp)
-  "Given a list of MATCHES return string matches without properties
+(defun m-buffer-match-string-no-properties (match-data &optional subexp)
+  "Given a list of MATCH-DATA return string matches without properties
 optionally of group SUBEXP."
   (-map
    'substring-no-properties
@@ -264,56 +311,68 @@ optionally of group SUBEXP."
 ;;;
 ;;; Block things detection
 ;;;
-(defun m-buffer-match-data-regexp-first (regexp &rest match-with)
-  "Internal convienience function and not part of the API.
-The same as m-buffer-match-data but with the regexp first."
-  (apply 'm-buffer-match-data
-         (-insert-at 1 regexp match-with)))
+(defun m-buffer-apply-snoc (fn list &rest element)
+  "Apply function to list and all elements."
+  (apply
+   fn (append list element)))
 
+(defun m-buffer-match-page (&rest match)
+  "Return a list of match data to all pages in MATCH.
+MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS. See
+`m-buffer-match-data' for further details."
+  (m-buffer-apply-snoc 'm-buffer-match-data
+                       match :regexp page-delimiter))
 
-(defun m-buffer-match-page (&rest match-with)
-  "Return a list of match data to all pages in MATCH-WITH.
-MATCH-WITH may be in any form accepted by `m-buffer-normalize-region'."
-  (apply 'm-buffer-match-data-regexp-first
-         page-delimiter match-with))
+(defun m-buffer-match-paragraph-separate (&rest match)
+  "Returns a list of match data to `paragraph-separate' in MATCH.
+MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS. See
+`m-buffer-match-data' for futher details."
+  (m-buffer-apply-snoc
+   'm-buffer-match-data match :regexp paragraph-separate
+   :post-match 'm-buffer-post-match-forward-line))
 
-(defun m-buffer-match-paragraph-separate (&rest match-with)
-  "Returns a list of match data to all pages in MATCH-WITH.
-MATCH-WITH may be in any form accepted by
-`m-buffer-normalize-region'."
-  (apply 'm-buffer-match-data-regexp-first
-         paragraph-separate match-with))
+(defun m-buffer-match-line-start (&rest match)
+  "Returns a list of match data to all line starts.
+MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS. See
+`m-buffer-match-data' for further details."
+  (m-buffer-apply-snoc
+   'm-buffer-match-beginning
+   match :regexp  "^"
+   :post-match 'm-buffer-post-match-forward-char))
 
-(defun m-buffer-match-line-start (&rest match-with)
-  "Returns a list of matches to all line start."
-  (apply 'm-buffer-match-data-regexp-first
-         "^"
-         (-snoc match-with 'm-buffer-post-match-forward-char)))
+(defun m-buffer-match-line-end (&rest match)
+  "Returns a list of matches to line end.
+MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS. See
+`m-buffer-match-data' for further details."
+  (m-buffer-apply-snoc
+   'm-buffer-match-beginning
+   match :regexp "$"
+   :post-match 'm-buffer-post-match-forward-char))
 
-(defun m-buffer-match-line-end (&rest match-with)
-  "Returns a list of matches to line end."
-  (apply 'm-buffer-match-data-regexp-first
-         "$"
-         (-snoc match-with
-                'm-buffer-post-match-forward-char)))
+(defun m-buffer-match-sentence-end (&rest match)
+  "Returns a list of matches to sentence end.
+MATCH is of the form BUFFER-OR-WINDOW MATCH-OPTIONS. See
+`m-buffer-match-data' for further details."
+  (m-buffer-apply-snoc
+   'm-buffer-match-beginning
+   match :regexp (sentence-end)))
 
-(defun m-buffer-match-sentence-end (&rest match-with)
-  "Returns a list of matches to sentence end."
-  (apply 'm-buffer-match-data-regexp-first
-         (sentence-end) match-with))
-
-(defun m-buffer-match-word (&rest match-with)
-  "Returns a list of matches to all words."
-  (apply 'm-buffer-match-data-regexp-first
-         "\\\w+" match-with))
+(defun m-buffer-match-word (&rest match)
+  "Returns a list of matches to all words.
+MATCH is of the form BUFFER-OR-WINDOW MATCH-OPTIONS. See
+`m-buffer-match-data' for further details."
+  (m-buffer-apply-snoc
+   'm-buffer-match-data
+   match :regexp "\\\w+"))
 
 ;; Useful post-match functions
 (defun m-buffer-post-match-forward-line ()
-  "Attempts to move forward one line and returns true if succeeds."
+  "Attempt to move forward one line, return true if success."
   (= 0 (forward-line)))
 
 (defun m-buffer-post-match-forward-char ()
-  "Attempts to move forward one char and returns true if succeeds."
+  "Attempts to move forward one char and returns true if
+succeeds."
   (condition-case e
       (progn
         (forward-char)

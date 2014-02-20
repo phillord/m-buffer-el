@@ -33,6 +33,7 @@
               ,file))
      ,@body))
 
+
 (ert-deftest m-with-temp-buffer-of-file ()
   "Test my test macro."
   (should
@@ -46,6 +47,39 @@
   "Has m-buffer loaded at all?"
   (should
    (fboundp 'm-buffer-match-data)))
+
+
+(ert-deftest normalize-args ()
+  "Normalize Region"
+  ;; just buffer and regexp
+  (should
+   (equal
+    (list (current-buffer) "regexp" nil nil nil)
+    (m-buffer-normalize-args
+     (list (current-buffer) "regexp"))))
+
+  (should
+   (equal
+    (list (current-buffer) "regexp" nil nil nil)
+    (m-buffer-normalize-args
+     (list (current-buffer) :regexp "regexp"))))
+
+  (should
+   (equal
+    (list (current-buffer) "regexp" 1 2 3)
+    (m-buffer-normalize-args
+     (list (current-buffer) "regexp" :beginning 1 :end 2 :post-match 3))))
+  
+  (should
+   (equal
+    (list (current-buffer) "regexp" 1 2 3)
+    (m-buffer-normalize-args
+     (list :buffer (current-buffer)
+           :regexp "regexp"
+           :beginning 1
+           :end 2
+           :post-match 3)))))
+
 
 (ert-deftest m-buffer-matches ()
   (should
@@ -76,6 +110,15 @@
       (current-buffer)
       "^one$")))))
 
+
+(ert-deftest markers-to-pos ()
+  (should
+   (equal '(1 1 1)
+          (m-buffer-markers-to-pos-nil
+           (list
+            (copy-marker 1)
+            (copy-marker 1)
+            (copy-marker 1))))))
 
 (ert-deftest m-buffer-match-beginning-pos ()
   (should
@@ -125,11 +168,11 @@
    (not
     (m-buffer-wtb-of-file
      "match-data.txt"
-     (m-buffer-page-match (current-buffer))))))
+     (m-buffer-match-page (current-buffer))))))
 
 (ert-deftest paragraph-separate ()
   (should
-   (m-buffer-paragraph-separate (current-buffer))))
+   (m-buffer-match-paragraph-separate (current-buffer))))
 
 (ert-deftest line-start ()
   (should
@@ -138,7 +181,7 @@
     (m-buffer-wtb-of-file
      "line-start.txt"
      (m-buffer-markers-to-pos
-      (m-buffer-line-start (current-buffer)))))))
+      (m-buffer-match-line-start (current-buffer)))))))
 
 (ert-deftest line-end ()
   (should
@@ -147,7 +190,16 @@
     (m-buffer-wtb-of-file
        "line-start.txt"
        (m-buffer-markers-to-pos
-        (m-buffer-line-end (current-buffer)))))))
+        (m-buffer-match-line-end (current-buffer)))))))
+
+(ert-deftest sentence-end ()
+  (should
+   (equal
+    '(15 32 48)
+    (m-buffer-wtb-of-file
+     "sentence-end.txt"
+     (m-buffer-markers-to-pos
+      (m-buffer-match-sentence-end (current-buffer)))))))
 
 
 ;;; m-buffer-test.el ends here
