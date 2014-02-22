@@ -202,5 +202,40 @@
      (m-buffer-markers-to-pos
       (m-buffer-match-sentence-end (current-buffer)))))))
 
+(ert-deftest match-n ()
+  (should
+   (equal
+    '((1 7 1 4 4 7) (8 14 8 11 11 14) (15 21 15 18 18 21) (22 28 22 25 25 28))
+    (m-buffer-wtb-of-file
+     "nth.txt"
+     (m-buffer-marker-tree-to-pos
+      (m-buffer-match-data
+       (current-buffer)
+       "\\(one\\)\\(two\\)")))))
+
+  (should
+   (equal
+    '((1 7)(8 14)(15 21)(22 28))
+    (m-buffer-wtb-of-file
+     "nth.txt"
+     (m-buffer-marker-tree-to-pos
+      (m-buffer-match-nth-group
+       0 (m-buffer-match-data
+          (current-buffer)
+          "\\(one\\)\\(two\\)"))))))
+
+  (should
+   (equal
+    '((1 4) (8 11) (15 18) (22 25))
+    (m-buffer-wtb-of-file
+     "nth.txt"
+     (m-buffer-marker-tree-to-pos
+      (m-buffer-match-nth-group
+       1 (m-buffer-match-data
+          (current-buffer)
+          "\\(one\\)\\(two\\)")))))))
+
+
+
 
 ;;; m-buffer-test.el ends here

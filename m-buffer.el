@@ -178,6 +178,16 @@ args, assume they are of the form accepted by
    (t
     (error "Invalid arguments"))))
 
+(defun m-buffer-match-nth-group (n match-data)
+  "From MATCH-DATA, fetch the match to the nth match group."
+  (-map
+   (lambda (m)
+     (let ((drp
+            (-drop (* 2 n) m)))
+       (list
+        (car drp) (cadr drp))))
+   match-data))
+
 (defun m-buffer-match-begin-n (n &rest match)
   "Return markers to the start of the match to the nth group.
 MATCH may be of any form accepted by `m-buffer-ensure-match'. Use
@@ -276,6 +286,20 @@ movement. Or use `m-buffer-markers-to-pos-nil'."
   "Transforms a list of MARKERS to a list of positions then nils.
 See also `m-buffer-nil-markers'"
   (m-buffer-markers-to-pos markers t))
+
+(defun m-buffer-marker-tree-to-pos (marker-tree &optional postnil)
+  (-tree-map
+   (lambda (marker)
+     (prog1
+         (marker-position marker)
+       (when postnil
+         (set-marker marker nil))))
+   marker-tree))
+
+(defun m-buffer-marker-tree-to-pos-nil (marker-tree)
+  (m-buffer-marker-tree-to-pos marker-tree t))
+
+
 
 (defun m-buffer-pos-to-markers (buffer positions)
   "In BUFFER translates a list of POSITIONS to markers."
