@@ -68,7 +68,7 @@
    (equal
     (list (current-buffer) "regexp" 1 2 3)
     (m-buffer-normalize-args
-     (list (current-buffer) "regexp" :beginning 1 :end 2 :post-match 3))))
+     (list (current-buffer) "regexp" :begin 1 :end 2 :post-match 3))))
   
   (should
    (equal
@@ -76,7 +76,7 @@
     (m-buffer-normalize-args
      (list :buffer (current-buffer)
            :regexp "regexp"
-           :beginning 1
+           :begin 1
            :end 2
            :post-match 3)))))
 
@@ -100,13 +100,13 @@
        (current-buffer)
        "^one$"))))))
 
-(ert-deftest m-buffer-match-beginning ()
+(ert-deftest m-buffer-match-begin ()
   (should
    (-every?
     'markerp
     (m-buffer-wtb-of-file
      "match-data.txt"
-     (m-buffer-match-beginning
+     (m-buffer-match-begin
       (current-buffer)
       "^one$")))))
 
@@ -120,13 +120,13 @@
             (copy-marker 1)
             (copy-marker 1))))))
 
-(ert-deftest m-buffer-match-beginning-pos ()
+(ert-deftest m-buffer-match-begin-pos ()
   (should
    (equal
     '(1 9 17)
     (m-buffer-wtb-of-file
      "match-data.txt"
-     (m-buffer-match-beginning-pos
+     (m-buffer-match-begin-pos
       (current-buffer)
       "^one$")))))
 
@@ -139,7 +139,7 @@
        (and
         (marker-position marker)
         (marker-buffer marker)))
-     (m-buffer-match-beginning (current-buffer) "^one$"))))
+     (m-buffer-match-begin (current-buffer) "^one$"))))
   (should
    (m-buffer-wtb-of-file
     "match-data.txt"
@@ -149,7 +149,7 @@
         (not (marker-position marker))
         (not (marker-buffer marker))))
      (m-buffer-nil-markers
-      (m-buffer-match-beginning (current-buffer) "^one$"))))))
+      (m-buffer-match-begin (current-buffer) "^one$"))))))
 
 
 (ert-deftest replace-matches ()

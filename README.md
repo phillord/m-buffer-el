@@ -40,6 +40,8 @@ with the FSF.
 #### Name changes
  - Functions now use singular rather than plural -- so `m-buffer-matches-data`
    has become `m-buffer-match-data`.
+ - All uses of `beginning` have been changed to `begin` -- it is shorter and
+   matches `end`
 
 #### Matchers
  - Regexp functions are now overloaded and take either a buffer and regexp or
@@ -48,7 +50,8 @@ with the FSF.
  - Matchers now also overloaded for windows -- searching in the visible
    portion of window. `m-buffer-match-data-visible-window` access this feature
    directly.
- - Have regularised names of arguments.
+ - Match Options are now keyword rather than positional which considerably
+   simplifies the implementation, especially with an eye to future expansion.
 
 #### Build and Test
  - Reworked tests and build scripts.
