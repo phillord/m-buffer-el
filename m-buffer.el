@@ -451,5 +451,29 @@ succeeds."
     (error 'end-of-buffer
            nil)))
 
+;;
+;; Apply function to things
+;;
+(defun m-buffer-on-region (fn match-data)
+  "Apply FN to MATCH-DATA.
+FN should take two args, the start and stop of each region.
+MATCH-DATA can be any list of lists with two elements (or more)."
+  (m-buffer-on-region-nth-group fn 0 match-data))
+
+(defun m-buffer-on-region-nth-group (fn n match-data)
+  "Apply FN to the Nth group of MATCH-DATA.
+FN should take two args, the start and stop of each region.
+MATCH-DATA can be any list of lists with two elements (or more)."
+  (-map
+   (lambda (x)
+     (apply fn x))
+   (m-buffer-match-nth-group n match-data)))
+
+;;
+;; Highlight things
+;;
+
+
+
 (provide 'm-buffer)
 ;;; m-buffer.el ends here

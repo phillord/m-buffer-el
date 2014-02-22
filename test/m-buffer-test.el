@@ -236,6 +236,15 @@
           "\\(one\\)\\(two\\)")))))))
 
 
-
-
+(ert-deftest apply-functions ()
+  (should
+   (equal
+    '("onetwo" "onetwo" "onetwo" "onetwo" "")
+    (m-buffer-wtb-of-file
+     "nth.txt"
+     (m-buffer-on-region
+      (lambda (from to)
+        (buffer-substring-no-properties from to))
+      (m-buffer-match-line
+       (current-buffer)))))))
 ;;; m-buffer-test.el ends here
