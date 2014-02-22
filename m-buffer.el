@@ -107,7 +107,7 @@ WIDEN -- call widen first."
                  post-match-return
                  ;; we need to check we are less than the end-bound
                  ;; or re-search-forward will break
-                 (< (point) end-bound)
+                 (<= (point) end-bound)
                  (re-search-forward
                   regexp end-bound
                   t))
