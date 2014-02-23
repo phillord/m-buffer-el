@@ -308,8 +308,6 @@ See also `m-buffer-nil-markers'"
 (defun m-buffer-marker-tree-to-pos-nil (marker-tree)
   (m-buffer-marker-tree-to-pos marker-tree t))
 
-
-
 (defun m-buffer-pos-to-markers (buffer positions)
   "In BUFFER translates a list of POSITIONS to markers."
   (-map
