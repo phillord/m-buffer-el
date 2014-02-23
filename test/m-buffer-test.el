@@ -202,6 +202,16 @@
      (m-buffer-markers-to-pos
       (m-buffer-match-sentence-end (current-buffer)))))))
 
+(ert-deftest buffer-for-match ()
+  (should
+   (with-temp-buffer
+     (progn
+       (insert "a")
+       (equal
+        (current-buffer)
+        (m-buffer-buffer-for-match
+         (m-buffer-match-data (current-buffer) "a")))))))
+
 (ert-deftest match-n ()
   (should
    (equal

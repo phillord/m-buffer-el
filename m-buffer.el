@@ -178,6 +178,14 @@ args, assume they are of the form accepted by
    (t
     (error "Invalid arguments"))))
 
+;;
+;; Match-data manipulation
+;;
+(defun m-buffer-buffer-for-match (match-data)
+  "Given some MATCH-DATA return the buffer that the matches are
+too."
+  (marker-buffer (caar match-data)))
+
 (defun m-buffer-match-nth-group (n match-data)
   "From MATCH-DATA, fetch the match to the nth match group."
   (-map
@@ -470,10 +478,39 @@ MATCH-DATA can be any list of lists with two elements (or more)."
    (m-buffer-match-nth-group n match-data)))
 
 ;;
-;; Highlight things
+;; Overlays
 ;;
+(defun m-buffer-overlay-match (match-data &optional front-advance rear-advance)
+  "Return an overlay for all matches to MATCH-DATA.
+FRONT-ADVANCE and REAR-ADVANCE controls the borders of the
+overlay as defined in `make-overlay'. Overlays do not scale that
+well, so use `m-buffer-propertize-match' if you intend to make
+and keep many of these.
 
+See Info node `(elisp) Overlays' forfurther information.
+"
+  (let ((buffer (m-buffer-buffer-for-match match-data)))
+    (m-buffer-on-region
+     (lambda (beginning end)
+       (make-overlay
+        beginning end buffer
+        front-advance rear-advance))
+     match-data)))
 
+(defun m-buffer-add-text-property-match
+  (match-data properties)
+  (let ((buffer (m-buffer-buffer-for-match match-data)))
+    (m-buffer-on-region
+     (lambda (beginning end)
+       (add-text-property beginning end properties))
+     match-data)))
+
+(defun m-buffer-put-text-property-match (match-data property value)
+  (let ((buffer (m-buffer-buffer-for-match match-data)))
+    (m-buffer-on-region
+     (lambda (beginning end)
+       (put-text-property beginning end property value))
+     match-data)))
 
 (provide 'm-buffer)
 ;;; m-buffer.el ends here
