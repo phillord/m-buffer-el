@@ -486,8 +486,7 @@ overlay as defined in `make-overlay'. Overlays do not scale that
 well, so use `m-buffer-propertize-match' if you intend to make
 and keep many of these.
 
-See Info node `(elisp) Overlays' forfurther information.
-"
+See Info node `(elisp) Overlays' for further information."
   (let ((buffer (m-buffer-buffer-for-match match-data)))
     (m-buffer-on-region
      (lambda (beginning end)
@@ -498,6 +497,10 @@ See Info node `(elisp) Overlays' forfurther information.
 
 (defun m-buffer-add-text-property-match
   (match-data properties)
+  "To MATCH-DATA add PROPERTIES.
+See `add-text-property' for details of the format of properties.
+Text properties are associated with the text and move with it. See
+Info node `(elisp) Text Properties' for further details."
   (let ((buffer (m-buffer-buffer-for-match match-data)))
     (m-buffer-on-region
      (lambda (beginning end)
@@ -505,11 +508,41 @@ See Info node `(elisp) Overlays' forfurther information.
      match-data)))
 
 (defun m-buffer-put-text-property-match (match-data property value)
+  "To MATCH-DATA add PROPERTY wth VALUE.
+See `put-text-property' for details of the format of properties.
+Text properties are associated with the text and move with it. See
+Info node `(elisp) Text Properties' for further details."
   (let ((buffer (m-buffer-buffer-for-match match-data)))
     (m-buffer-on-region
      (lambda (beginning end)
        (put-text-property beginning end property value))
      match-data)))
+
+(defun m-buffer-overlay-face-match (match-data face)
+  "To MATCH-DATA add FACE to the face property.
+This is for use in buffers which do not have `font-lock-mode'
+enabled; otherwise use `m-buffer-overlay-font-lock-face-match'."
+  (-map
+   (lambda (ovly)
+     (overlay-put ovly 'face face))
+   (m-buffer-overlay-match match-data)))
+
+(defun m-buffer-overlay-font-lock-face-match (match-data face)
+  "To MATCH-DATA add FACE to the face property.
+This is for use in buffers which have `font-lock-mode' enabled;
+otherwise use `m-buffer-overlay-face-match'."
+  (-map
+   (lambda (ovly)
+     (overlay-put ovly 'face face))
+   (m-buffer-overlay-match match-data)))
+
+(defun m-buffer-text-property-face (match-data face)
+  (m-buffer-put-text-property-match match-data
+   'face face))
+
+(defun m-buffer-text-property-font-lock-face (match-data face)
+  (m-buffer-put-text-property-match match-data
+   'font-lock-face face))
 
 (provide 'm-buffer)
 ;;; m-buffer.el ends here
