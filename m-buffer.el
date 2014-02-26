@@ -264,7 +264,7 @@ will slow future changes to the buffer."
 MATCH may be of any form accepted by `m-buffer-ensure-match'.
 If `match-data' is passed markers will be set to nil after this
 function. See `m-buffer-nil-markers' for details."
-  (m-buffers-markers-to-pos-nil
+  (m-buffer-markers-to-pos-nil
    (apply 'm-buffer-match-end match)))
 
 ;; marker/position utility functions
@@ -349,7 +349,7 @@ optionally of group SUBEXP."
   (-map
    'substring-no-properties
    (m-buffer-match-string
-    matches subexp)))
+    match-data subexp)))
 
 ;;;
 ;;; Block things detection
@@ -501,7 +501,7 @@ See Info node `(elisp) Overlays' forfurther information.
   (let ((buffer (m-buffer-buffer-for-match match-data)))
     (m-buffer-on-region
      (lambda (beginning end)
-       (add-text-property beginning end properties))
+       (add-text-properties beginning end properties))
      match-data)))
 
 (defun m-buffer-put-text-property-match (match-data property value)
