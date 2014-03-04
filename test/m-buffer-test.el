@@ -156,6 +156,16 @@
 (ert-deftest replace-matches ()
   (should
    (equal
+    '(6 16 26)
+    (m-buffer-wtb-of-file
+     "match-data.txt"
+     (m-buffer-marker-to-pos
+      (m-buffer-replace-match
+       (m-buffer-match-data
+        (current-buffer) "^one$") "three")))))
+
+  (should
+   (equal
     "three\ntwo\nthree\ntwo\nthree\ntwo\n"
     (m-buffer-wtb-of-file
      "match-data.txt"

@@ -318,7 +318,8 @@ See also `m-buffer-nil-markers'"
 
 (defun m-buffer-replace-match (match-data replacement &optional subexp)
   "Given a list of MATCH-DATA, replace with REPLACEMENT.
-SUBEXP should be a number indicating the regexp group to replace."
+SUBEXP should be a number indicating the regexp group to replace.
+Returns a list of markers to the end of the replacement."
   (-map
    (lambda (match)
      (with-current-buffer
@@ -327,7 +328,8 @@ SUBEXP should be a number indicating the regexp group to replace."
          (set-match-data match)
          (replace-match
           replacement nil nil nil
-          (or subexp 0)))))
+          (or subexp 0))
+         (point-marker))))
    match-data))
 
 (defun m-buffer-match-string (match-data &optional subexp)
