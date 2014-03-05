@@ -200,7 +200,7 @@ too."
 (defun m-buffer-match-begin-n (n &rest match)
   "Return markers to the start of the match to the nth group.
 MATCH may be of any form accepted by `m-buffer-ensure-match'. Use
-`m-buffer-nil-marker' after the markers have been finished with
+`m-buffer-nil-markers' after the markers have been finished with
 or they will slow future use of the buffer until garbage collected."
   (-map
    (lambda (m)
@@ -212,15 +212,15 @@ or they will slow future use of the buffer until garbage collected."
   "Return positions of the start of the match to the nth group.
 MATCH may be of any form accepted by `m-buffer-ensure-match'. If
 `match-data' is passed markers will be set to nil after this
-function. See `m-buffer-nil-marker' for details."
-  (m-buffer-marker-to-pos-nil
+function. See `m-buffer-nil-markers' for details."
+  (m-buffer-markers-to-pos-nil
    (apply 'm-buffer-match-begin-n
           n match)))
 
 (defun m-buffer-match-begin (&rest match)
   "Returns a list of markers to the start of matches.
 MATCH may of any form accepted by `m-buffer-ensure-match'. Use
-`m-buffer-nil-marker' after the markers have been used or they
+`m-buffer-nil-markers' after the markers have been used or they
 will slow future changes to the buffer."
   (apply 'm-buffer-match-begin-n 0 match))
 
@@ -228,14 +228,14 @@ will slow future changes to the buffer."
   "Returns a list of positions at the start of matcher.
 MATCH may be of any form accepted by `m-buffer-ensure-match'.
 If `match-data' is passed markers will be set to nil after this
-function. See `m-buffer-nil-marker' for details."
+function. See `m-buffer-nil-markers' for details."
   (apply 'm-buffer-match-begin-n-pos 0 match))
 
 (defun m-buffer-match-end-n (n &rest match)
   "Returns markers to the end of the match to the nth group.
 MATCH may be of any form accepted by `m-buffer-ensure-match'.
 If `match-data' is passed markers will be set to nil after this
-function. See `m-buffer-nil-marker' for details."
+function. See `m-buffer-nil-markers' for details."
   (-map
    (lambda (m)
      (nth
@@ -247,15 +247,15 @@ function. See `m-buffer-nil-marker' for details."
   "Return positions of the end of the match to the nth group.
 MATCH may be of any form accepted by `m-buffer-ensure-match'.
 If `match-data' is passed markers will be set to nil after this
-function. See `m-buffer-nil-marker' for details."
-  (m-buffer-marker-to-pos-nil
+function. See `m-buffer-nil-markers' for details."
+  (m-buffer-markers-to-pos-nil
    (apply 'm-buffer-match-end-n-pos
           n match)))
 
 (defun m-buffer-match-end (&rest match)
   "Returns a list of markers to the end of matches to regexp in buffer.
 MATCH may be of any form accepted by `m-buffer-ensure-match'. Use
-`m-buffer-nil-marker' after the markers have been used or they
+`m-buffer-nil-markers' after the markers have been used or they
 will slow future changes to the buffer."
   (apply 'm-buffer-match-end-n 0 match))
 
@@ -263,12 +263,12 @@ will slow future changes to the buffer."
   "Returns a list of positions to the end of the matches.
 MATCH may be of any form accepted by `m-buffer-ensure-match'.
 If `match-data' is passed markers will be set to nil after this
-function. See `m-buffer-nil-marker' for details."
-  (m-buffer-marker-to-pos-nil
+function. See `m-buffer-nil-markers' for details."
+  (m-buffer-markers-to-pos-nil
    (apply 'm-buffer-match-end match)))
 
 ;; marker/position utility functions
-(defun m-buffer-nil-marker (markers)
+(defun m-buffer-nil-markers (markers)
   "Takes a (nested) list of markers and nils them all.
 Markers slow buffer movement while they are pointing at a
 specific location, until they have been garbage collected. Niling
@@ -278,11 +278,11 @@ them prevents this. See Info node `(elisp) Overview of Markers'."
      (set-marker marker nil))
    (-flatten markers)))
 
-(defun m-buffer-marker-to-pos (markers &optional postnil)
+(defun m-buffer-markers-to-pos (markers &optional postnil)
   "Transforms a list of markers to a list of positions.
 If the markers are no longer needed, set postnil to true, or call
-`m-buffer-nil-marker' manually after use to speed future buffer
-movement. Or use `m-buffer-marker-to-pos-nil'."
+`m-buffer-nil-markers' manually after use to speed future buffer
+movement. Or use `m-buffer-markers-to-pos-nil'."
   (-map
    (lambda (marker)
      (prog1
@@ -291,10 +291,10 @@ movement. Or use `m-buffer-marker-to-pos-nil'."
          (set-marker marker nil))))
    markers))
 
-(defun m-buffer-marker-to-pos-nil (markers)
-  "Transforms a list of MARKER to a list of positions then nils.
+(defun m-buffer-markers-to-pos-nil (markers)
+  "Transforms a list of MARKERS to a list of positions then nils.
 See also `m-buffer-nil-markers'"
-  (m-buffer-marker-to-pos markers t))
+  (m-buffer-markers-to-pos markers t))
 
 (defun m-buffer-marker-tree-to-pos (marker-tree &optional postnil)
   (-tree-map
@@ -308,7 +308,7 @@ See also `m-buffer-nil-markers'"
 (defun m-buffer-marker-tree-to-pos-nil (marker-tree)
   (m-buffer-marker-tree-to-pos marker-tree t))
 
-(defun m-buffer-pos-to-marker (buffer positions)
+(defun m-buffer-pos-to-markers (buffer positions)
   "In BUFFER translates a list of POSITIONS to markers."
   (-map
    (lambda (pos)
@@ -318,8 +318,7 @@ See also `m-buffer-nil-markers'"
 
 (defun m-buffer-replace-match (match-data replacement &optional subexp)
   "Given a list of MATCH-DATA, replace with REPLACEMENT.
-SUBEXP should be a number indicating the regexp group to replace.
-Returns a list of markers to the end of the replacement."
+SUBEXP should be a number indicating the regexp group to replace."
   (-map
    (lambda (match)
      (with-current-buffer
@@ -328,8 +327,7 @@ Returns a list of markers to the end of the replacement."
          (set-match-data match)
          (replace-match
           replacement nil nil nil
-          (or subexp 0))
-         (point-marker))))
+          (or subexp 0)))))
    match-data))
 
 (defun m-buffer-match-string (match-data &optional subexp)
