@@ -112,10 +112,10 @@
       "^one$")))))
 
 
-(ert-deftest markers-to-pos ()
+(ert-deftest marker-to-pos ()
   (should
    (equal '(1 1 1)
-          (m-buffer-markers-to-pos-nil
+          (m-buffer-marker-to-pos-nil
            (list
             (copy-marker 1)
             (copy-marker 1)
@@ -131,7 +131,7 @@
       (current-buffer)
       "^one$")))))
 
-(ert-deftest m-buffer-nil-markers ()
+(ert-deftest m-buffer-nil-marker ()
   (should
    (m-buffer-wtb-of-file
     "match-data.txt"
@@ -149,11 +149,21 @@
        (and
         (not (marker-position marker))
         (not (marker-buffer marker))))
-     (m-buffer-nil-markers
+     (m-buffer-nil-marker
       (m-buffer-match-begin (current-buffer) "^one$"))))))
 
 
 (ert-deftest replace-matches ()
+  (should
+   (equal
+    '((1 6) (11 16) (21 26))
+    (m-buffer-wtb-of-file
+     "match-data.txt"
+     (m-buffer-marker-tree-to-pos
+      (m-buffer-replace-match
+       (m-buffer-match-data
+        (current-buffer) "^one$") "three")))))
+
   (should
    (equal
     "three\ntwo\nthree\ntwo\nthree\ntwo\n"
@@ -181,7 +191,7 @@
     '(1 2 3 5 7 10 13)
     (m-buffer-wtb-of-file
      "line-start.txt"
-     (m-buffer-markers-to-pos
+     (m-buffer-marker-to-pos
       (m-buffer-match-line-start (current-buffer)))))))
 
 (ert-deftest line-end ()
@@ -190,7 +200,7 @@
     '(1 2 4 6 9 12 13)
     (m-buffer-wtb-of-file
        "line-start.txt"
-       (m-buffer-markers-to-pos
+       (m-buffer-marker-to-pos
         (m-buffer-match-line-end (current-buffer)))))))
 
 (ert-deftest sentence-end ()
@@ -199,7 +209,7 @@
     '(15 32 48)
     (m-buffer-wtb-of-file
      "sentence-end.txt"
-     (m-buffer-markers-to-pos
+     (m-buffer-marker-to-pos
       (m-buffer-match-sentence-end (current-buffer)))))))
 
 (ert-deftest buffer-for-match ()

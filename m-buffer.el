@@ -308,7 +308,13 @@ See also `m-buffer-nil-markers'"
 (defun m-buffer-marker-tree-to-pos-nil (marker-tree)
   (m-buffer-marker-tree-to-pos marker-tree t))
 
-(defun m-buffer-pos-to-markers (buffer positions)
+(defun m-buffer-marker-clone (marker-tree &optional type)
+  (-tree-map
+   (lambda (marker)
+     (copy-marker marker type))
+   marker-tree))
+
+(defun m-buffer-pos-to-marker (buffer positions)
   "In BUFFER translates a list of POSITIONS to markers."
   (-map
    (lambda (pos)
@@ -318,7 +324,9 @@ See also `m-buffer-nil-markers'"
 
 (defun m-buffer-replace-match (match-data replacement &optional subexp)
   "Given a list of MATCH-DATA, replace with REPLACEMENT.
-SUBEXP should be a number indicating the regexp group to replace."
+SUBEXP should be a number indicating the regexp group to replace.
+Returns markers to the start and end of the replacement. These
+markers are part of MATCH-DATA, and will be niled if they are."
   (-map
    (lambda (match)
      (with-current-buffer
@@ -328,7 +336,9 @@ SUBEXP should be a number indicating the regexp group to replace."
          (replace-match
           replacement nil nil nil
           (or subexp 0)))))
-   match-data))
+   match-data)
+  ;; we have match-data 
+  (m-buffer-match-nth-group (or subexp 0) match-data))
 
 (defun m-buffer-match-string (match-data &optional subexp)
   "Given a list of MATCH-DATA return the string matches optionally
