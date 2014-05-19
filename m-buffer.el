@@ -425,12 +425,18 @@ MATCH is of the form BUFFER-OR-WINDOW MATCH-OPTIONS. See
    match :regexp "\\\w+"))
 
 (defun m-buffer-match-empty-line (&rest match)
+  "Returns a list of matches to all empty lines.
+MATCH is of the form BUFFER-OR-WINDOW MATCH-OPTIONS. See
+`m-buffer-match-data' for further details."
   (m-buffer-apply-snoc
    'm-buffer-match-data
    match :regexp "^$"
    :post-match 'm-buffer-post-match-forward-line))
 
 (defun m-buffer-match-non-empty-line (&rest match)
+  "Returns a list of matches to all non-empty lines.
+MATCH is fo the form BUFFER-OR-WINDOW MATCH-OPTIONS. See
+`m-buffer-match-data' for further details."
   (m-buffer-apply-snoc
    'm-buffer-match-data
    match :regexp "^.+$"))
@@ -547,10 +553,16 @@ otherwise use `m-buffer-overlay-face-match'."
    (m-buffer-overlay-match match-data)))
 
 (defun m-buffer-text-property-face (match-data face)
+  "To MATCH-DATA apply FACE. This is for use in buffers which do
+not have `font-lock-mode' enabled; otherwise use
+`m-buffer-text-property-font-lock-face'."
   (m-buffer-put-text-property-match match-data
    'face face))
 
 (defun m-buffer-text-property-font-lock-face (match-data face)
+  "To MATCH-DATA apply FACE. This is for use in buffers which have
+`font-lock-mode' enabled; otherwise use
+`m-buffer-text-property-face'."
   (m-buffer-put-text-property-match match-data
    'font-lock-face face))
 
