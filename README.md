@@ -28,6 +28,15 @@ with the FSF.
 
 ## Change Log
 
+### 0.3
+
+ - Various functions for colourising/adding faces
+ - Documentation improvements.
+ - m-buffer-nil-markers has been depluralised to m-buffer-nil-marker
+ - m-buffer-replace-match now returns start end markers
+ - m-buffer-clone-markers added.
+ 
+
 ### 0.2
 
 #### New Functions
