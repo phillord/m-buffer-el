@@ -48,7 +48,7 @@
 ;;
 ;; Regexp matching
 ;;
-(defun m-buffer-match-data (&rest match)
+(defun m-buffer-match (&rest match)
   "Return a list of `match-data' for all matches based on MATCH.
 MATCH may be of the forms:
 BUFFER REGEXP &optional MATCH-OPTIONS
@@ -74,13 +74,13 @@ the :end value will be used.
 REGEXP should advance point (i.e. not be zero-width) or the
 function will loop infinitely. POST-MATCH can be used to avoid
 this. The buffer is searched forward."
-  (apply 'm-buffer-match-data-1
+  (apply 'm-buffer-match-1
          (m-buffer-normalize-args match)))
 
-(defun m-buffer-match-data-1 (buffer regexp begin end post-match widen)
+(defun m-buffer-match-1 (buffer regexp begin end post-match widen)
   "Return a list of `match-data' for all matches.
 
-This is an internal function: please prefer `m-buffer-match-data'.
+This is an internal function: please prefer `m-buffer-match'.
 
 BUFFER -- the buffer.
 REGEXP -- the regexp.
@@ -169,13 +169,13 @@ This is an internal function."
   "Ensure that we have match data.
 If a single arg, assume it is match data and return. If multiple
 args, assume they are of the form accepted by
-`m-buffer-match-data'."
+`m-buffer-match'."
   (cond
    ;; we have match data
    ((= 1 (length match))
     (car match))
    ((< 1 (length match))
-    (apply 'm-buffer-match-data match))
+    (apply 'm-buffer-match match))
    (t
     (error "Invalid arguments"))))
 
@@ -372,28 +372,28 @@ optionally of group SUBEXP."
 (defun m-buffer-match-page (&rest match)
   "Return a list of match data to all pages in MATCH.
 MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS. See
-`m-buffer-match-data' for further details."
-  (m-buffer-apply-snoc 'm-buffer-match-data
+`m-buffer-match' for further details."
+  (m-buffer-apply-snoc 'm-buffer-match
                        match :regexp page-delimiter))
 
 (defun m-buffer-match-paragraph-separate (&rest match)
   "Returns a list of match data to `paragraph-separate' in MATCH.
 MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS. See
-`m-buffer-match-data' for futher details."
+`m-buffer-match' for futher details."
   (m-buffer-apply-snoc
-   'm-buffer-match-data match :regexp paragraph-separate
+   'm-buffer-match match :regexp paragraph-separate
    :post-match 'm-buffer-post-match-forward-line))
 
 (defun m-buffer-match-line (&rest match)
   (m-buffer-apply-snoc
-   'm-buffer-match-data
+   'm-buffer-match
    match :regexp "^.*$"
    :post-match 'm-buffer-post-match-forward-char))
 
 (defun m-buffer-match-line-start (&rest match)
   "Returns a list of match data to all line starts.
 MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS. See
-`m-buffer-match-data' for further details."
+`m-buffer-match' for further details."
   (m-buffer-apply-snoc
    'm-buffer-match-begin
    match :regexp  "^"
@@ -402,7 +402,7 @@ MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS. See
 (defun m-buffer-match-line-end (&rest match)
   "Returns a list of matches to line end.
 MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS. See
-`m-buffer-match-data' for further details."
+`m-buffer-match' for further details."
   (m-buffer-apply-snoc
    'm-buffer-match-begin
    match :regexp "$"
@@ -411,7 +411,7 @@ MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS. See
 (defun m-buffer-match-sentence-end (&rest match)
   "Returns a list of matches to sentence end.
 MATCH is of the form BUFFER-OR-WINDOW MATCH-OPTIONS. See
-`m-buffer-match-data' for further details."
+`m-buffer-match' for further details."
   (m-buffer-apply-snoc
    'm-buffer-match-begin
    match :regexp (sentence-end)))
@@ -419,42 +419,42 @@ MATCH is of the form BUFFER-OR-WINDOW MATCH-OPTIONS. See
 (defun m-buffer-match-word (&rest match)
   "Returns a list of matches to all words.
 MATCH is of the form BUFFER-OR-WINDOW MATCH-OPTIONS. See
-`m-buffer-match-data' for further details."
+`m-buffer-match' for further details."
   (m-buffer-apply-snoc
-   'm-buffer-match-data
+   'm-buffer-match
    match :regexp "\\\w+"))
 
 (defun m-buffer-match-empty-line (&rest match)
   "Returns a list of matches to all empty lines.
 MATCH is of the form BUFFER-OR-WINDOW MATCH-OPTIONS. See
-`m-buffer-match-data' for further details."
+`m-buffer-match' for further details."
   (m-buffer-apply-snoc
-   'm-buffer-match-data
+   'm-buffer-match
    match :regexp "^$"
    :post-match 'm-buffer-post-match-forward-line))
 
 (defun m-buffer-match-non-empty-line (&rest match)
   "Returns a list of matches to all non-empty lines.
 MATCH is fo the form BUFFER-OR-WINDOW MATCH-OPTIONS. See
-`m-buffer-match-data' for further details."
+`m-buffer-match' for further details."
   (m-buffer-apply-snoc
-   'm-buffer-match-data
+   'm-buffer-match
    match :regexp "^.+$"))
 
 (defun m-buffer-match-whitespace-line (&rest match)
   "Returns match data to all lines with only whitespace characters.
 Note empty lines are not included. MATCH is of form
-BUFFER-OR-WINDOW MATCH-OPTIONS. See `m-buffer-match-data' for
+BUFFER-OR-WINDOW MATCH-OPTIONS. See `m-buffer-match' for
 further details."
   (m-buffer-apply-snoc
-   'm-buffer-match-data
+   'm-buffer-match
    match :regexp "^\\s-+$"))
 
 (defun m-buffer-match-non-whitespace-line (&rest match)
   "Returns match data to all lines with at least one non-whitespace character.
 Note empty lines do not contain any non-whitespace lines.
 MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS. See
-`m-buffer-match-data' for further details."
+`m-buffer-match' for further details."
   (-difference
    (apply 'm-buffer-match-line match)
    (apply 'm-buffer-match-whitespace-line match)))

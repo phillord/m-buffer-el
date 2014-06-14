@@ -46,7 +46,7 @@
 (ert-deftest m-buffer-loaded ()
   "Has m-buffer loaded at all?"
   (should
-   (fboundp 'm-buffer-match-data)))
+   (fboundp 'm-buffer-match)))
 
 
 (ert-deftest normalize-args ()
@@ -88,7 +88,7 @@
       (length
        (m-buffer-wtb-of-file
         "match-data.txt"
-        (m-buffer-match-data
+        (m-buffer-match
          (current-buffer)
          "^one$")))))
   (should
@@ -97,7 +97,7 @@
     (-flatten
      (m-buffer-wtb-of-file
       "match-data.txt"
-      (m-buffer-match-data
+      (m-buffer-match
        (current-buffer)
        "^one$"))))))
 
@@ -161,7 +161,7 @@
      "match-data.txt"
      (m-buffer-marker-tree-to-pos
       (m-buffer-replace-match
-       (m-buffer-match-data
+       (m-buffer-match
         (current-buffer) "^one$") "three")))))
 
   (should
@@ -170,7 +170,7 @@
     (m-buffer-wtb-of-file
      "match-data.txt"
      (m-buffer-replace-match
-      (m-buffer-match-data
+      (m-buffer-match
        (current-buffer) "^one$") "three")
      (buffer-string)))))
 
@@ -220,7 +220,7 @@
        (equal
         (current-buffer)
         (m-buffer-buffer-for-match
-         (m-buffer-match-data (current-buffer) "a")))))))
+         (m-buffer-match (current-buffer) "a")))))))
 
 (ert-deftest match-n ()
   (should
@@ -229,7 +229,7 @@
     (m-buffer-wtb-of-file
      "nth.txt"
      (m-buffer-marker-tree-to-pos
-      (m-buffer-match-data
+      (m-buffer-match
        (current-buffer)
        "\\(one\\)\\(two\\)")))))
 
@@ -240,7 +240,7 @@
      "nth.txt"
      (m-buffer-marker-tree-to-pos
       (m-buffer-match-nth-group
-       0 (m-buffer-match-data
+       0 (m-buffer-match
           (current-buffer)
           "\\(one\\)\\(two\\)"))))))
 
@@ -251,7 +251,7 @@
      "nth.txt"
      (m-buffer-marker-tree-to-pos
       (m-buffer-match-nth-group
-       1 (m-buffer-match-data
+       1 (m-buffer-match
           (current-buffer)
           "\\(one\\)\\(two\\)")))))))
 
