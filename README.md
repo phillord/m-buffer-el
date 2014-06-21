@@ -28,6 +28,10 @@ with the FSF.
 
 ## Change Log
 
+### 0.4
+
+ - m-buffer-match-data has become m-buffer-match
+
 ### 0.3
 
  - Various functions for colourising/adding faces
