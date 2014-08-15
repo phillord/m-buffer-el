@@ -1,10 +1,13 @@
 EMACS ?= emacs
 CASK ?= cask
 
-all: test
+all: install test
+
+install:
+	cask install
 
 test:
-	./run-tests.sh
+	cask exec ert-runner
 
 
 .PHONY: test

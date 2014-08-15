@@ -18,6 +18,8 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Code:
+(require 'm-buffer)
+
 (defvar m-buffer-test-path
   (directory-file-name
    (file-name-directory
