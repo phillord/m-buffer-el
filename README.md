@@ -34,6 +34,10 @@ with the FSF.
  - Testing is now via Cask
 
 
+#### New Functions
+
+ - m-buffer-delete-match
+
 ### 0.3
 
  - Various functions for colourising/adding faces

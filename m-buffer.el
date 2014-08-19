@@ -297,6 +297,9 @@ See also `m-buffer-nil-markers'"
   (m-buffer-marker-to-pos markers t))
 
 (defun m-buffer-marker-tree-to-pos (marker-tree &optional postnil)
+  "Transforms a tree of markers to equivalent positions.
+MARKER-TREE is the tree.
+POSTNIL sets markers to till afterwards."
   (-tree-map
    (lambda (marker)
      (prog1
@@ -326,7 +329,7 @@ See also `m-buffer-nil-markers'"
   "Given a list of MATCH-DATA, replace with REPLACEMENT.
 SUBEXP should be a number indicating the regexp group to replace.
 Returns markers to the start and end of the replacement. These
-markers are part of MATCH-DATA, and will be niled if they are."
+markers are part of MATCH-DATA, so niling them will percolate backward."
   (-map
    (lambda (match)
      (with-current-buffer
@@ -337,8 +340,15 @@ markers are part of MATCH-DATA, and will be niled if they are."
           replacement nil nil nil
           (or subexp 0)))))
    match-data)
-  ;; we have match-data 
+  ;; we have match-data
   (m-buffer-match-nth-group (or subexp 0) match-data))
+
+(defun m-buffer-delete-match (match-data &optional subexp)
+  "Given a list of MATCH-DATA, delete the matches.
+SUBEXP should be a number indicating the regexp group to delete.
+Returns markers to the start and end of the replacement. These
+markers are part of MATCH_DATA, so niling them will percolate backward."
+  (m-buffer-replace-match match-data "" subexp))
 
 (defun m-buffer-match-string (match-data &optional subexp)
   "Given a list of MATCH-DATA return the string matches optionally
@@ -385,6 +395,9 @@ MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS. See
    :post-match 'm-buffer-post-match-forward-line))
 
 (defun m-buffer-match-line (&rest match)
+  "Returns a list of match-data to all lines.
+MATCH is of the form BUFFER-OR-WINDOW MATCH-OPTIONS.
+See `m-buffer-match for further details."
   (m-buffer-apply-snoc
    'm-buffer-match
    match :regexp "^.*$"
