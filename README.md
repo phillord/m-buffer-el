@@ -31,6 +31,8 @@ with the FSF.
 ### 0.4
 
  - m-buffer-match-data has become m-buffer-match
+ - Testing is now via Cask
+
 
 ### 0.3
 
