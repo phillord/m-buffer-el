@@ -28,6 +28,13 @@ with the FSF.
 
 ## Change Log
 
+### 0.5
+ - Automated Testing with Cask
+
+#### Breaking Changes
+ - m-buffer-replace-match optional arguments now expanded to match
+   replace-match. This means the 3rd argument has changed meaning.
+
 ### 0.4
 
  - m-buffer-match-data has become m-buffer-match
