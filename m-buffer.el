@@ -325,7 +325,8 @@ POSTNIL sets markers to till afterwards."
       (make-marker) pos buffer))
    positions))
 
-(defun m-buffer-replace-match (match-data replacement &optional subexp)
+(defun m-buffer-replace-match (match-data replacement
+                                          &optional fixedcase literal subexp)
   "Given a list of MATCH-DATA, replace with REPLACEMENT.
 SUBEXP should be a number indicating the regexp group to replace.
 Returns markers to the start and end of the replacement. These
@@ -337,7 +338,7 @@ markers are part of MATCH-DATA, so niling them will percolate backward."
        (save-match-data
          (set-match-data match)
          (replace-match
-          replacement nil nil nil
+          replacement fixedcase literal nil 
           (or subexp 0)))))
    match-data)
   ;; we have match-data
