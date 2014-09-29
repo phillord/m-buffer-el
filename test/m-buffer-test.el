@@ -56,32 +56,28 @@
   ;; just buffer and regexp
   (should
    (equal
-    (list (current-buffer) "regexp" nil nil nil nil)
+    (list (current-buffer) "regexp" nil nil nil nil :missing)
     (m-buffer-normalize-args
      (list (current-buffer) "regexp"))))
 
   (should
    (equal
-    (list (current-buffer) "regexp" nil nil nil nil)
+    (list (current-buffer) "regexp" nil nil nil nil :missing)
     (m-buffer-normalize-args
      (list (current-buffer) :regexp "regexp"))))
 
   (should
    (equal
-    (list (current-buffer) "regexp" 1 2 3 4)
+    (list (current-buffer) "regexp" 1 2 3 4 :missing)
     (m-buffer-normalize-args
      (list (current-buffer) "regexp" :begin 1 :end 2 :post-match 3 :widen 4))))
 
   (should
    (equal
-    (list (current-buffer) "regexp" 1 2 3 4)
+    (list (current-buffer) "regexp" 1 2 3 4 5)
     (m-buffer-normalize-args
-     (list :buffer (current-buffer)
-           :regexp "regexp"
-           :begin 1
-           :end 2
-           :post-match 3
-           :widen 4)))))
+     (list (current-buffer) "regexp" :begin 1 :end 2 :post-match 3
+           :widen 4 :case-fold-search 5)))))
 
 
 (ert-deftest m-buffer-matches ()
@@ -269,4 +265,39 @@
         (buffer-substring-no-properties from to))
       (m-buffer-match-line
        (current-buffer)))))))
+
+(ert-deftest case-fold-search ()
+  ;; match everything -- technically this is dependent on the buffer-local
+  ;; value of case-fold-search
+  (should
+   (equal
+    '((1 2) (3 4) (5 6) (7 8))
+    (m-buffer-wtb-of-file
+     "case-match.txt"
+     (m-buffer-marker-tree-to-pos
+      (m-buffer-match
+       (current-buffer)
+       "A")))))
+  ;; match just upper case (i.e. cfs nil)
+  (should
+   (equal
+    '((1 2)(5 6))
+    (m-buffer-wtb-of-file
+     "case-match.txt"
+     (m-buffer-marker-tree-to-pos
+      (m-buffer-match
+       (current-buffer)
+       "A"
+       :case-fold-search nil)))))
+  ;; match all again
+  (should
+   (equal
+    '((1 2) (3 4) (5 6) (7 8))
+    (m-buffer-wtb-of-file
+     "case-match.txt"
+     (m-buffer-marker-tree-to-pos
+      (m-buffer-match
+       (current-buffer)
+       "A"
+       :case-fold-search t))))))
 ;;; m-buffer-test.el ends here

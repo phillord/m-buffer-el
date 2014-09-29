@@ -64,6 +64,7 @@ following keys:
 :end -- the end of the region to search -- default point max
 :post-match -- function called after a match -- default nil
 :widen -- if true, widen buffer first -- default nil
+:case-fold-search value of `case-fold-search' during search
 
 If options are expressed in two places, the plist form takes
 precedence over positional args. So calling with both a first
@@ -77,7 +78,8 @@ this. The buffer is searched forward."
   (apply 'm-buffer-match-1
          (m-buffer-normalize-args match)))
 
-(defun m-buffer-match-1 (buffer regexp begin end post-match widen)
+(defun m-buffer-match-1 (buffer regexp begin end
+                                post-match widen cfs)
   "Return a list of `match-data' for all matches.
 
 This is an internal function: please prefer `m-buffer-match'.
@@ -89,7 +91,8 @@ END -- the end of the region to search
 POST-MATCH -- function to run after each match
 POST-MATCH is useful for zero-width matches which will otherwise cause
 infinite loop. The buffer is searched forward.
-WIDEN -- call widen first."
+WIDEN -- call widen first.
+CFS -- Non-nil if searches and matches should ignore case."
   (save-match-data
     (save-excursion
       (save-restriction
@@ -98,7 +101,12 @@ WIDEN -- call widen first."
           (when widen (widen))
           (let ((rtn nil)
                 (post-match-return t)
-                (end-bound (or end (point-max))))
+                (end-bound (or end (point-max)))
+                ;; over-ride default if necessary
+                (case-fold-search
+                 (if (eq :missing cfs)
+                     case-fold-search
+                   cfs)))
             (goto-char
              (or begin
                  (point-min)))
@@ -162,8 +170,16 @@ This is an internal function."
 
          ;; widen
          (widen
-           (plist-get pargs :widen)))
-    (list buffer regexp begin end post-match widen)))
+           (plist-get pargs :widen))
+
+         ;; case-fold-search this needs to overwrite the buffer contents iff
+         ;; set, otherwise be ignore, so we need to distinguish a missing
+         ;; property and a nil one
+         (cfs
+          (if (plist-member pargs :case-fold-search)
+              (plist-get pargs :case-fold-search)
+            :missing)))
+    (list buffer regexp begin end post-match widen cfs)))
 
 (defun m-buffer-ensure-match (&rest match)
   "Ensure that we have match data.
