@@ -157,7 +157,6 @@
      (m-buffer-nil-marker
       (m-buffer-match-begin (current-buffer) "^one$"))))))
 
-
 (ert-deftest replace-matches ()
   (should
    (equal
@@ -307,4 +306,33 @@
        (current-buffer)
        "A"
        :case-fold-search t))))))
+
+
+(ert-deftest subtract ()
+  (should
+   (equal
+    '((1 6) (17 23) (34 39))
+    (m-buffer-wtb-of-file
+     "sentence-end.txt"
+     (m-buffer-marker-tree-to-pos
+      (m-buffer-match-subtract
+       (m-buffer-match-word
+        (current-buffer))
+       (m-buffer-match
+        (current-buffer) "sentence")))))))
+
+(ert-deftest exact-substract ()
+  (should
+   (equal
+    '((1 6) (17 23) (34 39))
+    (m-buffer-wtb-of-file
+     "sentence-end.txt"
+     (m-buffer-marker-tree-to-pos
+      (m-buffer-match-exact-subtract
+       (m-buffer-match-word
+        (current-buffer))
+       (m-buffer-match
+        (current-buffer) "sentence")))))))
+
+
 ;;; m-buffer-test.el ends here

@@ -297,6 +297,46 @@ function. See `m-buffer-nil-marker' for details."
   (m-buffer-marker-to-pos-nil
    (apply 'm-buffer-match-end match)))
 
+(defun m-buffer-match-equal (m n)
+  "Returns true if m and n are cover the same region.
+Matches are equal if they match the same region; subgroups are
+ignored."
+  ;; can we speed this up by not making subsets?
+  (equal
+   (-take 2 m)
+   (-take 2 n)))
+
+(defun m-buffer-match-subtract (m n)
+  "Remove from M any matches in N.
+Matches are equivalent if overall they match the same
+area; subgroups are ignored.
+See also `m-buffer-match-exact-subtract' which often
+runs faster but has some restrictions."
+  (-remove
+   (lambda (o)
+     (-any?
+      (lambda (p)
+        (m-buffer-match-equal o p))
+      n))
+   m))
+
+(defun m-buffer-match-exact-subtract (m n)
+  "Remove from M any matches in N.
+Both M and N must be fully ordered, and any element in N must be
+in M."
+  ;; copy n
+  (let ((n-eaten n))
+    (-remove
+     (lambda (o)
+       ;; check the first element of n
+       (when (m-buffer-match-equal
+              (car n-eaten) o)
+         ;; we have a match so throw away the first element of n-eaten
+         ;; which we won't need again.
+         (setq n-eaten (-drop 1 n-eaten))
+         t))
+     m)))
+
 ;; marker/position utility functions
 (defun m-buffer-nil-marker (markers)
   "Takes a (nested) list of markers and nils them all.
