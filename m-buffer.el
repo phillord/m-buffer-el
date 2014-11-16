@@ -4,8 +4,8 @@
 
 ;; Author: Phillip Lord <phillip.lord@newcastle.ac.uk>
 ;; Maintainer: Phillip Lord <phillip.lord@newcastle.ac.uk>
-;; Version: 0.5
-;; Package-Requires: ((dash "2.5.0")(emacs "24.3"))
+;; Version: 0.6
+;; Package-Requires: ((dash "2.8.0")(emacs "24.3"))
 
 ;; The contents of this file are subject to the GPL License, Version 3.0.
 ;;
