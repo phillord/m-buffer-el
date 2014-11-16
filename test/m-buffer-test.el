@@ -321,7 +321,21 @@
        (m-buffer-match
         (current-buffer) "sentence")))))))
 
-(ert-deftest exact-substract ()
+(ert-deftest exact-subtract ()
+  (should
+   (equal
+    '((1 1)(2 2)(3 3))
+    (m-buffer-match-exact-subtract
+     '((0 0) (1 1) (2 2) (3 3) (4 4))
+     '((0 0) (4 4)))))
+
+  (should
+   (equal
+    '((1 1)(2 2)(3 3))
+    (m-buffer-match-exact-subtract
+     '((0 0) (1 1) (2 2) (3 3) (4 4))
+     '((-1 -1) (4 4)))))
+
   (should
    (equal
     '((1 6) (17 23) (34 39))
@@ -333,6 +347,15 @@
         (current-buffer))
        (m-buffer-match
         (current-buffer) "sentence")))))))
+
+(ert-deftest exact-subtract-with-nil ()
+  (should
+   (equal
+    '((1 1))
+    (m-buffer-match-exact-subtract
+     '((1 1))
+     nil))))
+
 
 
 ;;; m-buffer-test.el ends here

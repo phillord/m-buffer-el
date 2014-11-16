@@ -39,8 +39,8 @@
 ;;
 ;; This library is early release at the moment. I write it become I got fed up
 ;; with writing (while (re-search-forward) do-stuff) forms. I found that it
-;; considerably simplified writing `linked-buffer'. I make no guarantees about
-;; the API at the moment.
+;; considerably simplified writing `linked-buffer'. The API is beginning to
+;; stablize now and should not undergo major changes.
 
 ;;; Code:
 (require 'dash)
@@ -187,12 +187,12 @@ This is an internal function."
           (if (plist-member pargs :case-fold-search)
               (plist-get pargs :case-fold-search)
             :default))
-         
+
          ;; numeric
          (numeric
           (plist-get pargs :numeric)))
 
-    
+
     (list buffer regexp begin end post-match widen cfs numeric)))
 
 (defun m-buffer-ensure-match (&rest match)
@@ -302,9 +302,13 @@ function. See `m-buffer-nil-marker' for details."
 Matches are equal if they match the same region; subgroups are
 ignored."
   ;; can we speed this up by not making subsets?
-  (equal
-   (-take 2 m)
-   (-take 2 n)))
+  (and
+   (equal
+    (car m)
+    (car n))
+   (equal
+    (cadr m)
+    (cadr n))))
 
 (defun m-buffer-match-subtract (m n)
   "Remove from M any matches in N.
@@ -324,18 +328,32 @@ runs faster but has some restrictions."
   "Remove from M any matches in N.
 Both M and N must be fully ordered, and any element in N must be
 in M."
-  ;; copy n
-  (let ((n-eaten n))
-    (-remove
-     (lambda (o)
-       ;; check the first element of n
-       (when (m-buffer-match-equal
+  (if n
+      (let ((n-eaten n))
+        (-remove
+         (lambda (o)
+           (cond
+            ;; we have a match so throw away the first element of n-eaten
+            ;; which we won't need again.
+            ((m-buffer-match-equal
               (car n-eaten) o)
-         ;; we have a match so throw away the first element of n-eaten
-         ;; which we won't need again.
-         (setq n-eaten (-drop 1 n-eaten))
-         t))
-     m)))
+             (progn
+               (setq n-eaten (-drop 1 n-eaten))
+               t))
+            ;; we should discard also if n-eaten 1 is less than o because, both
+            ;; are sorted, so we will never match
+            ((<
+              ;; first half of the first match in n-eaten
+              (caar n-eaten)
+              ;; first half of match
+              (car o))
+             (progn
+               (setq n-eaten (-drop 1 n-eaten))
+               t))))
+         m))
+    m))
+
+
 
 ;; marker/position utility functions
 (defun m-buffer-nil-marker (markers)
