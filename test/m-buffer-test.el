@@ -56,28 +56,35 @@
   ;; just buffer and regexp
   (should
    (equal
-    (list (current-buffer) "regexp" nil nil nil nil :missing)
+    (list (current-buffer) "regexp" nil nil nil nil :default nil)
     (m-buffer-normalize-args
      (list (current-buffer) "regexp"))))
 
   (should
    (equal
-    (list (current-buffer) "regexp" nil nil nil nil :missing)
+    (list (current-buffer) "regexp" nil nil nil nil :default nil)
     (m-buffer-normalize-args
      (list (current-buffer) :regexp "regexp"))))
 
   (should
    (equal
-    (list (current-buffer) "regexp" 1 2 3 4 :missing)
+    (list (current-buffer) "regexp" 1 2 3 4 :default nil)
     (m-buffer-normalize-args
      (list (current-buffer) "regexp" :begin 1 :end 2 :post-match 3 :widen 4))))
 
   (should
    (equal
-    (list (current-buffer) "regexp" 1 2 3 4 5)
+    (list (current-buffer) "regexp" 1 2 3 4 5 nil)
     (m-buffer-normalize-args
      (list (current-buffer) "regexp" :begin 1 :end 2 :post-match 3
-           :widen 4 :case-fold-search 5)))))
+           :widen 4 :case-fold-search 5))))
+
+  (should
+   (equal
+    (list (current-buffer) "regexp" 1 2 3 4 5 6)
+    (m-buffer-normalize-args
+     (list (current-buffer) "regexp" :begin 1 :end 2 :post-match 3
+           :widen 4 :case-fold-search 5 :numeric 6)))))
 
 
 (ert-deftest m-buffer-matches ()

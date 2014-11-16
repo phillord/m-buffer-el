@@ -64,7 +64,9 @@ following keys:
 :end -- the end of the region to search -- default point max
 :post-match -- function called after a match -- default nil
 :widen -- if true, widen buffer first -- default nil
-:case-fold-search value of `case-fold-search' during search
+:case-fold-search value of `case-fold-search' during search.
+If :default accept the current buffer-local value
+:numeric -- if true, return integers not markers
 
 If options are expressed in two places, the plist form takes
 precedence over positional args. So calling with both a first
@@ -79,7 +81,8 @@ this. The buffer is searched forward."
          (m-buffer-normalize-args match)))
 
 (defun m-buffer-match-1 (buffer regexp begin end
-                                post-match widen cfs)
+                                post-match widen cfs
+                                numeric)
   "Return a list of `match-data' for all matches.
 
 This is an internal function: please prefer `m-buffer-match'.
@@ -92,7 +95,9 @@ POST-MATCH -- function to run after each match
 POST-MATCH is useful for zero-width matches which will otherwise cause
 infinite loop. The buffer is searched forward.
 WIDEN -- call widen first.
-CFS -- Non-nil if searches and matches should ignore case."
+CFS -- Non-nil if searches and matches should ignore case.
+NUMERIC -- Non-nil if we should return integers not markers.
+"
   (save-match-data
     (save-excursion
       (save-restriction
@@ -104,7 +109,7 @@ CFS -- Non-nil if searches and matches should ignore case."
                 (end-bound (or end (point-max)))
                 ;; over-ride default if necessary
                 (case-fold-search
-                 (if (eq :missing cfs)
+                 (if (eq :default cfs)
                      case-fold-search
                    cfs)))
             (goto-char
@@ -122,7 +127,10 @@ CFS -- Non-nil if searches and matches should ignore case."
                   t))
               (setq rtn
                     (cons
-                     (match-data)
+                     (if numeric
+                         (m-buffer-marker-to-pos-nil
+                          (match-data))
+                       (match-data))
                      rtn))
               (when post-match
                 (setq post-match-return (funcall post-match))))
@@ -178,8 +186,14 @@ This is an internal function."
          (cfs
           (if (plist-member pargs :case-fold-search)
               (plist-get pargs :case-fold-search)
-            :missing)))
-    (list buffer regexp begin end post-match widen cfs)))
+            :default))
+         
+         ;; numeric
+         (numeric
+          (plist-get pargs :numeric)))
+
+    
+    (list buffer regexp begin end post-match widen cfs numeric)))
 
 (defun m-buffer-ensure-match (&rest match)
   "Ensure that we have match data.
