@@ -46,6 +46,41 @@
 (require 'dash)
 
 ;;
+;; Macro Support
+;;
+(defmacro m-buffer-with-markers (varlist &rest body)
+  "Bind variables after VARLIST then eval BODY.
+All variables should contain markers or collections of markers.
+All markers are niled after BODY."
+  ;; indent let part specially.
+  (declare (indent 1)(debug let))
+  ;; so, create a rtn var with make-symbol (for hygene)
+  (let* ((rtn-var (make-symbol "rtn-var"))
+         (marker-vars
+          (mapcar 'car varlist))
+         (full-varlist
+          (append
+           varlist
+           `((,rtn-var
+              (progn
+                ,@body))))))
+    `(let* ,full-varlist
+       (m-buffer-nil-marker
+        (list ,@marker-vars))
+       ,rtn-var)))
+
+(defmacro m-buffer-with-current-location
+  (buffer location &rest body)
+  "Run BODY in BUFFER at LOCATION."
+  (declare (indent 2)
+           (debug t))
+  `(with-current-buffer
+       ,buffer
+     (save-excursion
+       (goto-char ,location)
+      ,@body)))
+
+;;
 ;; Regexp matching
 ;;
 (defun m-buffer-match (&rest match)
