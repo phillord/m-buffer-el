@@ -69,6 +69,16 @@ All markers are niled after BODY."
         (list ,@marker-vars))
        ,rtn-var)))
 
+(defmacro m-buffer-with-current-marker
+  (marker &rest body)
+  "Run BODY at MARKER location."
+  (declare (indent 1) (debug t))
+  `(with-current-buffer
+       (marker-buffer ,marker)
+     (save-excursion
+       (goto-char ,marker)
+       ,@body)))
+
 (defmacro m-buffer-with-current-location
   (buffer location &rest body)
   "Run BODY in BUFFER at LOCATION."
