@@ -374,10 +374,17 @@ runs faster but has some restrictions."
 Both M and N must be fully ordered, and any element in N must be
 in M."
   (if n
+      ;; n-eaten contains the remaining elements of n that we haven't tested
+      ;; for yet. We throw them away as we go
       (let ((n-eaten n))
         (-remove
          (lambda (o)
            (cond
+            ;; n-eaten has been eaten. Check here or later "<" comparison crashes.
+            ((not n-eaten)
+             ;; return nil because we always want things in m now.
+             nil
+             )
             ;; we have a match so throw away the first element of n-eaten
             ;; which we won't need again.
             ((m-buffer-match-equal

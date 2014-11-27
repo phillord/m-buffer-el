@@ -356,6 +356,22 @@
      '((1 1))
      nil))))
 
+(ert-deftest exact-subtract-error-simplified ()
+  (should
+   (equal
+    '((2 2))
+    (m-buffer-match-exact-subtract
+     '((1 1) (2 2))
+     '((1 1))))))
 
+(ert-deftest exact-subtract-error ()
+  "This is a test case for a bug found from linked-buffer."
+  (should
+   (equal
+    '((19 31 19 19))
+    (m-buffer-match-exact-subtract
+     '((1 18 1 1)
+       (19 31 19 19))
+     '((1 18))))))
 
 ;;; m-buffer-test.el ends here
