@@ -36,8 +36,8 @@ with the FSF.
    `m-buffer-match-subtract` and `m-buffer-match-exact-subtract`
  - `m-buffer-with-markers` is a `let*` like macro which autonils markers after
    use.
- - `m-buffer-with-current-location` is like `with-current-buffer` but
-   also takes a location.
+ - `m-buffer-with-current-location` is like `with-current-buffer` but also
+   takes a location.
  - `m-buffer-with-current-marker` is like `with-current-buffer` but takes a
    marker.
  
