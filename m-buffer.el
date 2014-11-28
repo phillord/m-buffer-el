@@ -71,7 +71,7 @@ All markers are niled after BODY."
 
 (defmacro m-buffer-with-current-marker
   (marker &rest body)
-  "Run BODY at MARKER location."
+  "At MARKER location run BODY."
   (declare (indent 1) (debug t))
   `(with-current-buffer
        (marker-buffer ,marker)
@@ -81,7 +81,7 @@ All markers are niled after BODY."
 
 (defmacro m-buffer-with-current-location
   (buffer location &rest body)
-  "Run BODY in BUFFER at LOCATION."
+  "In BUFFER at LOCATION, run BODY."
   (declare (indent 2)
            (debug t))
   `(with-current-buffer
@@ -94,7 +94,7 @@ All markers are niled after BODY."
 ;; Regexp matching
 ;;
 (defun m-buffer-match (&rest match)
-  "Return a list of `match-data' for all matches based on MATCH.
+  "Return a list of all `match-data' for MATCH.
 MATCH may be of the forms:
 BUFFER REGEXP &optional MATCH-OPTIONS
 WINDOW REGEXP &optional MATCH-OPTIONS
@@ -122,13 +122,13 @@ the :end value will be used.
 REGEXP should advance point (i.e. not be zero-width) or the
 function will loop infinitely. POST-MATCH can be used to avoid
 this. The buffer is searched forward."
-  (apply 'm-buffer-match-1
-         (m-buffer-normalize-args match)))
+  (apply 'm-buffer--match-1
+         (m-buffer--normalize-args match)))
 
-(defun m-buffer-match-1 (buffer regexp begin end
+(defun m-buffer--match-1 (buffer regexp begin end
                                 post-match widen cfs
                                 numeric)
-  "Return a list of `match-data' for all matches.
+  "Return a list of `match-data'.
 
 This is an internal function: please prefer `m-buffer-match'.
 
@@ -141,8 +141,7 @@ POST-MATCH is useful for zero-width matches which will otherwise cause
 infinite loop. The buffer is searched forward.
 WIDEN -- call widen first.
 CFS -- Non-nil if searches and matches should ignore case.
-NUMERIC -- Non-nil if we should return integers not markers.
-"
+NUMERIC -- Non-nil if we should return integers not markers."
   (save-match-data
     (save-excursion
       (save-restriction
@@ -181,10 +180,9 @@ NUMERIC -- Non-nil if we should return integers not markers.
                 (setq post-match-return (funcall post-match))))
             (reverse rtn)))))))
 
-(defun m-buffer-normalize-args (match-with)
+(defun m-buffer--normalize-args (match-with)
   "Manipulate args into a standard form and return as a list.
-
-This is an internal function."
+MATCH-WITH are these args.This is an internal function."
   (let* (
          ;; split up into keyword and non keyword limits
          (args
@@ -241,7 +239,7 @@ This is an internal function."
     (list buffer regexp begin end post-match widen cfs numeric)))
 
 (defun m-buffer-ensure-match (&rest match)
-  "Ensure that we have match data.
+  "Ensure that we have MATCH data.
 If a single arg, assume it is match data and return. If multiple
 args, assume they are of the form accepted by
 `m-buffer-match'."
@@ -258,12 +256,11 @@ args, assume they are of the form accepted by
 ;; Match-data manipulation
 ;;
 (defun m-buffer-buffer-for-match (match-data)
-  "Given some MATCH-DATA return the buffer that the matches are
-too."
+  "Given some MATCH-DATA return the buffer for that data."
   (marker-buffer (caar match-data)))
 
 (defun m-buffer-match-nth-group (n match-data)
-  "From MATCH-DATA, fetch the match to the nth match group."
+  "Fetch the Nth group from MATCH-DATA."
   (-map
    (lambda (m)
      (let ((drp
@@ -273,7 +270,7 @@ too."
    match-data))
 
 (defun m-buffer-match-begin-n (n &rest match)
-  "Return markers to the start of the match to the nth group.
+  "Return markers to the start of the Nth group in MATCH.
 MATCH may be of any form accepted by `m-buffer-ensure-match'. Use
 `m-buffer-nil-marker' after the markers have been finished with
 or they will slow future use of the buffer until garbage collected."
@@ -284,7 +281,7 @@ or they will slow future use of the buffer until garbage collected."
    (apply 'm-buffer-ensure-match match)))
 
 (defun m-buffer-match-begin-n-pos (n &rest match)
-  "Return positions of the start of the match to the nth group.
+  "Return positions of the start of the Nth group in MATCH.
 MATCH may be of any form accepted by `m-buffer-ensure-match'. If
 `match-data' is passed markers will be set to nil after this
 function. See `m-buffer-nil-marker' for details."
@@ -293,21 +290,21 @@ function. See `m-buffer-nil-marker' for details."
           n match)))
 
 (defun m-buffer-match-begin (&rest match)
-  "Returns a list of markers to the start of matches.
+  "Return a list of markers to the start of MATCH.
 MATCH may of any form accepted by `m-buffer-ensure-match'. Use
 `m-buffer-nil-marker' after the markers have been used or they
 will slow future changes to the buffer."
   (apply 'm-buffer-match-begin-n 0 match))
 
 (defun m-buffer-match-begin-pos (&rest match)
-  "Returns a list of positions at the start of matcher.
+  "Return a list of positions at the start of matcher.
 MATCH may be of any form accepted by `m-buffer-ensure-match'.
 If `match-data' is passed markers will be set to nil after this
 function. See `m-buffer-nil-marker' for details."
   (apply 'm-buffer-match-begin-n-pos 0 match))
 
 (defun m-buffer-match-end-n (n &rest match)
-  "Returns markers to the end of the match to the nth group.
+  "Return markers to the end of the match to the Nth group.
 MATCH may be of any form accepted by `m-buffer-ensure-match'.
 If `match-data' is passed markers will be set to nil after this
 function. See `m-buffer-nil-marker' for details."
@@ -319,7 +316,7 @@ function. See `m-buffer-nil-marker' for details."
    (apply 'm-buffer-ensure-match match)))
 
 (defun m-buffer-match-end-n-pos (n &rest match)
-  "Return positions of the end of the match to the nth group.
+  "Return positions of the end Nth group of MATCH.
 MATCH may be of any form accepted by `m-buffer-ensure-match'.
 If `match-data' is passed markers will be set to nil after this
 function. See `m-buffer-nil-marker' for details."
@@ -328,14 +325,14 @@ function. See `m-buffer-nil-marker' for details."
           n match)))
 
 (defun m-buffer-match-end (&rest match)
-  "Returns a list of markers to the end of matches to regexp in buffer.
+  "Return a list of markers to the end of MATCH to regexp in buffer.
 MATCH may be of any form accepted by `m-buffer-ensure-match'. Use
 `m-buffer-nil-marker' after the markers have been used or they
 will slow future changes to the buffer."
   (apply 'm-buffer-match-end-n 0 match))
 
 (defun m-buffer-match-end-pos (&rest match)
-  "Returns a list of positions to the end of the matches.
+  "Return a list of positions to the end of the match.
 MATCH may be of any form accepted by `m-buffer-ensure-match'.
 If `match-data' is passed markers will be set to nil after this
 function. See `m-buffer-nil-marker' for details."
@@ -343,7 +340,7 @@ function. See `m-buffer-nil-marker' for details."
    (apply 'm-buffer-match-end match)))
 
 (defun m-buffer-match-equal (m n)
-  "Returns true if m and n are cover the same region.
+  "Return true if M and N are cover the same region.
 Matches are equal if they match the same region; subgroups are
 ignored."
   ;; can we speed this up by not making subsets?
@@ -356,7 +353,7 @@ ignored."
     (cadr n))))
 
 (defun m-buffer-match-subtract (m n)
-  "Remove from M any matches in N.
+  "Remove from M any match in N.
 Matches are equivalent if overall they match the same
 area; subgroups are ignored.
 See also `m-buffer-match-exact-subtract' which often
@@ -370,7 +367,7 @@ runs faster but has some restrictions."
    m))
 
 (defun m-buffer-match-exact-subtract (m n)
-  "Remove from M any matches in N.
+  "Remove from M any match in N.
 Both M and N must be fully ordered, and any element in N must be
 in M."
   (if n
@@ -409,7 +406,7 @@ in M."
 
 ;; marker/position utility functions
 (defun m-buffer-nil-marker (markers)
-  "Takes a (nested) list of markers and nils them all.
+  "Takes a (nested) list of MARKERS and nils them all.
 Markers slow buffer movement while they are pointing at a
 specific location, until they have been garbage collected. Niling
 them prevents this. See Info node `(elisp) Overview of Markers'."
@@ -419,8 +416,8 @@ them prevents this. See Info node `(elisp) Overview of Markers'."
    (-flatten markers)))
 
 (defun m-buffer-marker-to-pos (markers &optional postnil)
-  "Transforms a list of markers to a list of positions.
-If the markers are no longer needed, set postnil to true, or call
+  "Transforms a list of MARKERS to a list of positions.
+If the markers are no longer needed, set POSTNIL to true, or call
 `m-buffer-nil-marker' manually after use to speed future buffer
 movement. Or use `m-buffer-marker-to-pos-nil'."
   (-map
@@ -432,14 +429,14 @@ movement. Or use `m-buffer-marker-to-pos-nil'."
    markers))
 
 (defun m-buffer-marker-to-pos-nil (markers)
-  "Transforms a list of MARKER to a list of positions then nils.
+  "Transforms a list of MARKERS to a list of positions then nils.
 See also `m-buffer-nil-markers'"
   (m-buffer-marker-to-pos markers t))
 
 (defun m-buffer-marker-tree-to-pos (marker-tree &optional postnil)
   "Transforms a tree of markers to equivalent positions.
 MARKER-TREE is the tree.
-POSTNIL sets markers to till afterwards."
+POSTNIL sets markers to nil afterwards."
   (-tree-map
    (lambda (marker)
      (prog1
@@ -449,9 +446,14 @@ POSTNIL sets markers to till afterwards."
    marker-tree))
 
 (defun m-buffer-marker-tree-to-pos-nil (marker-tree)
+  "Transforms a tree of markers to equivalent positions.
+MARKER-TREE is the tree. Markers are niled afterwards."
   (m-buffer-marker-tree-to-pos marker-tree t))
 
 (defun m-buffer-marker-clone (marker-tree &optional type)
+  "Return a clone of MARKER-TREE.
+The optional argument TYPE specifies the insertion type. See
+`copy-marker' for details."
   (-tree-map
    (lambda (marker)
      (copy-marker marker type))
@@ -468,9 +470,13 @@ POSTNIL sets markers to till afterwards."
 (defun m-buffer-replace-match (match-data replacement
                                           &optional fixedcase literal subexp)
   "Given a list of MATCH-DATA, replace with REPLACEMENT.
+If FIXEDCASE do not alter the case of the replacement text.
+If LITERAL insert the replacement literally.
 SUBEXP should be a number indicating the regexp group to replace.
 Returns markers to the start and end of the replacement. These
-markers are part of MATCH-DATA, so niling them will percolate backward."
+markers are part of MATCH-DATA, so niling them will percolate backward.
+
+See also `replace-match'."
   (-map
    (lambda (match)
      (with-current-buffer
@@ -485,15 +491,14 @@ markers are part of MATCH-DATA, so niling them will percolate backward."
   (m-buffer-match-nth-group (or subexp 0) match-data))
 
 (defun m-buffer-delete-match (match-data &optional subexp)
-  "Given a list of MATCH-DATA, delete the matches.
+  "Delete all MATCH-DATA.
 SUBEXP should be a number indicating the regexp group to delete.
 Returns markers to the start and end of the replacement. These
 markers are part of MATCH_DATA, so niling them will percolate backward."
   (m-buffer-replace-match match-data "" subexp))
 
 (defun m-buffer-match-string (match-data &optional subexp)
-  "Given a list of MATCH-DATA return the string matches optionally
-of group SUBEXP."
+  "Return strings for MATCH-DATA optionally of group SUBEXP."
   (-map
    (lambda (match)
      (with-current-buffer
@@ -505,8 +510,8 @@ of group SUBEXP."
    match-data))
 
 (defun m-buffer-match-string-no-properties (match-data &optional subexp)
-  "Given a list of MATCH-DATA return string matches without properties
-optionally of group SUBEXP."
+  "Return strings for MATCH-DATA optionally of group SUBEXP.
+Remove all properties from return."
   (-map
    'substring-no-properties
    (m-buffer-match-string
@@ -516,7 +521,7 @@ optionally of group SUBEXP."
 ;;; Block things detection
 ;;;
 (defun m-buffer-apply-snoc (fn list &rest element)
-  "Apply function to list and all elements."
+  "Apply FN to LIST and all ELEMENT."
   (apply
    fn (append list element)))
 
@@ -528,7 +533,7 @@ MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS. See
                        match :regexp page-delimiter))
 
 (defun m-buffer-match-paragraph-separate (&rest match)
-  "Returns a list of match data to `paragraph-separate' in MATCH.
+  "Return a list of match data to `paragraph-separate' in MATCH.
 MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS. See
 `m-buffer-match' for futher details."
   (m-buffer-apply-snoc
@@ -536,7 +541,7 @@ MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS. See
    :post-match 'm-buffer-post-match-forward-line))
 
 (defun m-buffer-match-line (&rest match)
-  "Returns a list of match-data to all lines.
+  "Return a list of match data to all lines.
 MATCH is of the form BUFFER-OR-WINDOW MATCH-OPTIONS.
 See `m-buffer-match for further details."
   (m-buffer-apply-snoc
@@ -545,7 +550,7 @@ See `m-buffer-match for further details."
    :post-match 'm-buffer-post-match-forward-char))
 
 (defun m-buffer-match-line-start (&rest match)
-  "Returns a list of match data to all line starts.
+  "Return a list of match data to all line start.
 MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS. See
 `m-buffer-match' for further details."
   (m-buffer-apply-snoc
@@ -554,7 +559,7 @@ MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS. See
    :post-match 'm-buffer-post-match-forward-char))
 
 (defun m-buffer-match-line-end (&rest match)
-  "Returns a list of matches to line end.
+  "Return a list of match to line end.
 MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS. See
 `m-buffer-match' for further details."
   (m-buffer-apply-snoc
@@ -563,7 +568,7 @@ MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS. See
    :post-match 'm-buffer-post-match-forward-char))
 
 (defun m-buffer-match-sentence-end (&rest match)
-  "Returns a list of matches to sentence end.
+  "Return a list of match to sentence end.
 MATCH is of the form BUFFER-OR-WINDOW MATCH-OPTIONS. See
 `m-buffer-match' for further details."
   (m-buffer-apply-snoc
@@ -571,7 +576,7 @@ MATCH is of the form BUFFER-OR-WINDOW MATCH-OPTIONS. See
    match :regexp (sentence-end)))
 
 (defun m-buffer-match-word (&rest match)
-  "Returns a list of matches to all words.
+  "Return a list of match to all words.
 MATCH is of the form BUFFER-OR-WINDOW MATCH-OPTIONS. See
 `m-buffer-match' for further details."
   (m-buffer-apply-snoc
@@ -579,7 +584,7 @@ MATCH is of the form BUFFER-OR-WINDOW MATCH-OPTIONS. See
    match :regexp "\\\w+"))
 
 (defun m-buffer-match-empty-line (&rest match)
-  "Returns a list of matches to all empty lines.
+  "Return a list of match to all empty lines.
 MATCH is of the form BUFFER-OR-WINDOW MATCH-OPTIONS. See
 `m-buffer-match' for further details."
   (m-buffer-apply-snoc
@@ -588,7 +593,7 @@ MATCH is of the form BUFFER-OR-WINDOW MATCH-OPTIONS. See
    :post-match 'm-buffer-post-match-forward-line))
 
 (defun m-buffer-match-non-empty-line (&rest match)
-  "Returns a list of matches to all non-empty lines.
+  "Return a list of match to all non-empty lines.
 MATCH is fo the form BUFFER-OR-WINDOW MATCH-OPTIONS. See
 `m-buffer-match' for further details."
   (m-buffer-apply-snoc
@@ -596,7 +601,7 @@ MATCH is fo the form BUFFER-OR-WINDOW MATCH-OPTIONS. See
    match :regexp "^.+$"))
 
 (defun m-buffer-match-whitespace-line (&rest match)
-  "Returns match data to all lines with only whitespace characters.
+  "Return match data to all lines with only whitespace characters.
 Note empty lines are not included. MATCH is of form
 BUFFER-OR-WINDOW MATCH-OPTIONS. See `m-buffer-match' for
 further details."
@@ -605,7 +610,7 @@ further details."
    match :regexp "^\\s-+$"))
 
 (defun m-buffer-match-non-whitespace-line (&rest match)
-  "Returns match data to all lines with at least one non-whitespace character.
+  "Return match data to all lines with at least one non-whitespace character.
 Note empty lines do not contain any non-whitespace lines.
 MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS. See
 `m-buffer-match' for further details."
@@ -619,8 +624,8 @@ MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS. See
   (= 0 (forward-line)))
 
 (defun m-buffer-post-match-forward-char ()
-  "Attempts to move forward one char and returns true if
-succeeds."
+  "Attempts to move forward one char.
+Returns true if succeeds."
   (condition-case e
       (progn
         (forward-char)
@@ -650,7 +655,7 @@ MATCH-DATA can be any list of lists with two elements (or more)."
 ;; Overlays
 ;;
 (defun m-buffer-overlay-match (match-data &optional front-advance rear-advance)
-  "Return an overlay for all matches to MATCH-DATA.
+  "Return an overlay for all match to MATCH-DATA.
 FRONT-ADVANCE and REAR-ADVANCE controls the borders of the
 overlay as defined in `make-overlay'. Overlays do not scale that
 well, so use `m-buffer-propertize-match' if you intend to make
@@ -690,7 +695,7 @@ Info node `(elisp) Text Properties' for further details."
 
 (defun m-buffer-overlay-face-match (match-data face)
   "To MATCH-DATA add FACE to the face property.
-This is for use in buffers which do not have `font-lock-mode'
+This is for use in buffers which do not have function `font-lock-mode'
 enabled; otherwise use `m-buffer-overlay-font-lock-face-match'."
   (-map
    (lambda (ovly)
@@ -699,7 +704,7 @@ enabled; otherwise use `m-buffer-overlay-font-lock-face-match'."
 
 (defun m-buffer-overlay-font-lock-face-match (match-data face)
   "To MATCH-DATA add FACE to the face property.
-This is for use in buffers which have `font-lock-mode' enabled;
+This is for use in buffers which have variable `font-lock-mode' enabled;
 otherwise use `m-buffer-overlay-face-match'."
   (-map
    (lambda (ovly)
@@ -707,16 +712,17 @@ otherwise use `m-buffer-overlay-face-match'."
    (m-buffer-overlay-match match-data)))
 
 (defun m-buffer-text-property-face (match-data face)
-  "To MATCH-DATA apply FACE. This is for use in buffers which do
-not have `font-lock-mode' enabled; otherwise use
+  "To MATCH-DATA apply FACE.
+This is for use in buffers which do
+not have variable `font-lock-mode' enabled; otherwise use
 `m-buffer-text-property-font-lock-face'."
   (m-buffer-put-text-property-match match-data
    'face face))
 
 (defun m-buffer-text-property-font-lock-face (match-data face)
-  "To MATCH-DATA apply FACE. This is for use in buffers which have
-`font-lock-mode' enabled; otherwise use
-`m-buffer-text-property-face'."
+  "To MATCH-DATA apply FACE.
+This is for use in buffers which have variable `font-lock-mode'
+enabled; otherwise use `m-buffer-text-property-face'."
   (m-buffer-put-text-property-match match-data
    'font-lock-face face))
 
