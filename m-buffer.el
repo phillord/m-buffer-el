@@ -1,4 +1,4 @@
-;;; m-buffer.el --- Buffer Manipulation Functions -*- lexical-binding: t -*-
+;;; m-buffer.el --- List-Oriented, Functional Buffer Manipulation -*- lexical-binding: t -*-
 
 ;; This file is not part of Emacs
 
@@ -27,13 +27,18 @@
 ;;; Commentary:
 ;;
 ;; This file provides a set of list orientated functions for operating over
-;; the contents of buffers. Functions are generally purish: i.e. they may
-;; change the state of one buffer by side-effect, but should not affect point,
-;; current buffer, match data or so forth. Generally, markers are returned
-;; rather than point locations, so that it is possible for example, to search
-;; for regexp matches, and then replace them all without the early replacement
-;; invalidating the location of the later ones.
-;;
+;; the contents of buffers. They avoid the use of looping, manipulating global
+;; state with `match-data'. Many high-level functions exist for matching
+;; sentences, lines and so on.
+
+;; Functions are generally purish: i.e. they may change the state of one
+;; buffer by side-effect, but should not affect point, current buffer, match
+;; data or so forth. Generally, markers are returned rather than point
+;; locations, so that it is possible for example, to search for regexp
+;; matches, and then replace them all without the early replacement
+;; invalidating the location of the later ones. Some support macros are added
+;; to help dispose of used or unwanted markers to ensure performant code.
+
 
 ;;; Status:
 ;;

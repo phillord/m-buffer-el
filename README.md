@@ -16,7 +16,8 @@ For full commentary, please see [m-buffer.el](m-buffer.el).
 
 ## Status
 
-Early release, all APIs subject to change.
+The code is now in active use. APIs are open to change, but I am not intending
+to.
 
 ## Contributions
 
@@ -27,6 +28,9 @@ with the FSF.
 
 
 ## Change Log
+
+### 0.7
+ - `m-buffer-match-first-line' added.
 
 ### 0.6
 
