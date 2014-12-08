@@ -203,9 +203,19 @@
    (equal
     '(1 2 4 6 9 12 13)
     (m-buffer-wtb-of-file
-       "line-start.txt"
-       (m-buffer-marker-to-pos
-        (m-buffer-match-line-end (current-buffer)))))))
+     "line-start.txt"
+     (m-buffer-marker-to-pos
+      (m-buffer-match-line-end (current-buffer)))))))
+
+(ert-deftest first-line ()
+  (should
+   (equal
+    '((1 1))
+    (m-buffer-wtb-of-file
+     "line-start.txt"
+     (m-buffer-marker-tree-to-pos
+      (m-buffer-match-first-line
+       (current-buffer)))))))
 
 (ert-deftest sentence-end ()
   (should

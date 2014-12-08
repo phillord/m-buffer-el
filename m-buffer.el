@@ -540,13 +540,17 @@ MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS. See
    'm-buffer-match match :regexp paragraph-separate
    :post-match 'm-buffer-post-match-forward-line))
 
+(defvar m-buffer--line-regexp
+  "^.*$"
+  "Regexp to match a line.")
+
 (defun m-buffer-match-line (&rest match)
   "Return a list of match data to all lines.
 MATCH is of the form BUFFER-OR-WINDOW MATCH-OPTIONS.
 See `m-buffer-match for further details."
   (m-buffer-apply-snoc
    'm-buffer-match
-   match :regexp "^.*$"
+   match :regexp m-buffer--line-regexp
    :post-match 'm-buffer-post-match-forward-char))
 
 (defun m-buffer-match-line-start (&rest match)
@@ -566,6 +570,15 @@ MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS. See
    'm-buffer-match-begin
    match :regexp "$"
    :post-match 'm-buffer-post-match-forward-char))
+
+(defun m-buffer-match-first-line (&rest match)
+  "Returns a match to the first line of MATCH.
+This matches more efficiently than matching all lines and taking
+the car. See `m-buffer-match' for further details of MATCH."
+  (m-buffer-apply-snoc
+   'm-buffer-match match
+   :regexp m-buffer--line-regexp
+   :post-match (lambda () nil)))
 
 (defun m-buffer-match-sentence-end (&rest match)
   "Return a list of match to sentence end.
