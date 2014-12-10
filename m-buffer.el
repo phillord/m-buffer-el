@@ -4,7 +4,7 @@
 
 ;; Author: Phillip Lord <phillip.lord@newcastle.ac.uk>
 ;; Maintainer: Phillip Lord <phillip.lord@newcastle.ac.uk>
-;; Version: 0.7
+;; Version: 0.8
 ;; Package-Requires: ((dash "2.8.0")(emacs "24.3"))
 
 ;; The contents of this file are subject to the GPL License, Version 3.0.
@@ -49,51 +49,7 @@
 
 ;;; Code:
 (require 'dash)
-
-;;
-;; Macro Support
-;;
-(defmacro m-buffer-with-markers (varlist &rest body)
-  "Bind variables after VARLIST then eval BODY.
-All variables should contain markers or collections of markers.
-All markers are niled after BODY."
-  ;; indent let part specially.
-  (declare (indent 1)(debug let))
-  ;; so, create a rtn var with make-symbol (for hygene)
-  (let* ((rtn-var (make-symbol "rtn-var"))
-         (marker-vars
-          (mapcar 'car varlist))
-         (full-varlist
-          (append
-           varlist
-           `((,rtn-var
-              (progn
-                ,@body))))))
-    `(let* ,full-varlist
-       (m-buffer-nil-marker
-        (list ,@marker-vars))
-       ,rtn-var)))
-
-(defmacro m-buffer-with-current-marker
-  (marker &rest body)
-  "At MARKER location run BODY."
-  (declare (indent 1) (debug t))
-  `(with-current-buffer
-       (marker-buffer ,marker)
-     (save-excursion
-       (goto-char ,marker)
-       ,@body)))
-
-(defmacro m-buffer-with-current-location
-  (buffer location &rest body)
-  "In BUFFER at LOCATION, run BODY."
-  (declare (indent 2)
-           (debug t))
-  `(with-current-buffer
-       ,buffer
-     (save-excursion
-       (goto-char ,location)
-      ,@body)))
+(require 'm-buffer-macro)
 
 ;;
 ;; Regexp matching
