@@ -8,6 +8,22 @@ See also `eolp'."
   (m-buffer-with-current-location
       location
     (eolp)))
-  
+
+(defun m-buffer-at-bolp (&rest location)
+  "Return t if LOCATION is at the begining of a line.
+See also `bolp'"
+  (m-buffer-with-current-location
+      location
+    (bolp)))
+
+(defun m-buffer-at-line-beginning-position (&rest location)
+  (m-buffer-with-current-location
+      location
+    (line-beginning-position)))
+
+(defun m-buffer-at-line-end-position (&rest location)
+  (m-buffer-with-current-location
+      location
+    (line-end-position)))
 
 (provide 'm-buffer-at)
