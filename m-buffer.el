@@ -363,7 +363,14 @@ in M."
          m))
     m))
 
-
+(defun m-buffer-in-match-p (matches position)
+  "Returns true is any of MATCHES contain POSITION."
+  (-any?
+   (lambda (match)
+     (and
+      (<= (car match) position)
+      (<= position (cadr match))))
+   matches))
 
 ;; marker/position utility functions
 (defun m-buffer-nil-marker (markers)
