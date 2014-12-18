@@ -1,11 +1,39 @@
-;;
-;; Macro Support
-;;
+;;; m-buffer-macro.el --- Stateless point functions -*- lexical-binding: t -*-
+
+;;; Header:
+
+;; This file is not part of Emacs
+
+;; The contents of this file are subject to the GPL License, Version 3.0.
+
+;; Copyright (C) 2014, Phillip Lord, Newcastle University
+
+;; This program is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+;; #+begin_src emacs-lisp
+
+;;; Commentary:
+
+;; Macro support for markers with post-cleanup.
+
+;;; Code:
+
 (defmacro m-buffer-with-markers (varlist &rest body)
   "Bind variables after VARLIST then eval BODY.
 All variables should contain markers or collections of markers.
 All markers are niled after BODY."
-  ;; indent let part specially.
+  ;; indent let part specially, and debug like let
   (declare (indent 1)(debug let))
   ;; so, create a rtn var with make-symbol (for hygene)
   (let* ((rtn-var (make-symbol "rtn-var"))
@@ -66,3 +94,6 @@ If a two element, it is a buffer and position."
 
 
 (provide 'm-buffer-macro)
+;; #+end_src
+
+;;; m-buffer-macro.el ends here

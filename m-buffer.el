@@ -1,5 +1,7 @@
 ;;; m-buffer.el --- List-Oriented, Functional Buffer Manipulation -*- lexical-binding: t -*-
 
+;;; Header:
+
 ;; This file is not part of Emacs
 
 ;; Author: Phillip Lord <phillip.lord@newcastle.ac.uk>
@@ -8,28 +10,28 @@
 ;; Package-Requires: ((dash "2.8.0")(emacs "24.3"))
 
 ;; The contents of this file are subject to the GPL License, Version 3.0.
-;;
+
 ;; Copyright (C) 2014, Phillip Lord, Newcastle University
-;;
+
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation, either version 3 of the License, or
 ;; (at your option) any later version.
-;;
+;; ;;
 ;; This program is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
-;;
+
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
-;;
-;; This file provides a set of list orientated functions for operating over
-;; the contents of buffers. They avoid the use of looping, manipulating global
-;; state with `match-data'. Many high-level functions exist for matching
-;; sentences, lines and so on.
+
+;; This file provides a set of list-oriented functions for operating over the
+;; contents of buffers. They avoid the use of looping, manipulating global state
+;; with `match-data'. Many high-level functions exist for matching sentences,
+;; lines and so on.
 
 ;; Functions are generally purish: i.e. they may change the state of one
 ;; buffer by side-effect, but should not affect point, current buffer, match
@@ -41,13 +43,17 @@
 
 
 ;;; Status:
-;;
+
 ;; This library is early release at the moment. I write it become I got fed up
 ;; with writing (while (re-search-forward) do-stuff) forms. I found that it
 ;; considerably simplified writing `linked-buffer'. The API is beginning to
 ;; stablize now and should not undergo major changes.
 
 ;;; Code:
+
+
+;; #+begin_src emacs-lisp
+
 (require 'dash)
 (require 'm-buffer-macro)
 
@@ -708,4 +714,6 @@ enabled; otherwise use `m-buffer-text-property-face'."
    'font-lock-face face))
 
 (provide 'm-buffer)
-;;; m-buffer.el ends here
+;; #+end_src
+
+;; ;;; m-buffer.el ends here
