@@ -38,9 +38,14 @@
 ;; data or so forth. Generally, markers are returned rather than point
 ;; locations, so that it is possible for example, to search for regexp
 ;; matches, and then replace them all without the early replacement
-;; invalidating the location of the later ones. Some support macros are added
-;; to help dispose of used or unwanted markers to ensure performant code.
+;; invalidating the location of the later ones. 
 
+;; Other files provide something similar: stateless alternatives to existing
+;; emacs functions. `m-buffer-macro' provides macros to operate in the context of
+;; a marker, and for marker cleanup. `m-buffer-at' provides functions for
+;; operating at point (without using point!).
+
+;; This file is documented using lentic.el.
 
 ;;; Status:
 
@@ -50,7 +55,6 @@
 ;; stablize now and should not undergo major changes.
 
 ;;; Code:
-
 
 ;; #+begin_src emacs-lisp
 
