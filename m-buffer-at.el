@@ -76,8 +76,6 @@ See also `bolp'"
 
 (provide 'm-buffer-at)
 
-;; #+end_src
-
 (provide 'm-buffer-at)
-
 ;;; m-buffer-at.el ends here
+;; #+end_src

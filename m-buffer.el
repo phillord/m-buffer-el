@@ -16,8 +16,8 @@
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation, either version 3 of the License, or
-;; (at your option) any later version.
-;; ;;
+;; (at your option) any later version
+
 ;; This program is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -60,10 +60,16 @@
 
 (require 'dash)
 (require 'm-buffer-macro)
+;; #+end_src
 
-;;
-;; Regexp matching
-;;
+;; ** Regexp Matching
+
+;; This section provides the core functions which convert between Emacs' stateful
+;; matching and a more sequence oriented approach.
+
+;; `m-buffer-match' provides the main interface for this.
+
+;; #+begin_src emacs-lisp
 (defun m-buffer-match (&rest match)
   "Return a list of all `match-data' for MATCH.
 MATCH may be of the forms:
@@ -96,6 +102,12 @@ this. The buffer is searched forward."
   (apply 'm-buffer--match-1
          (m-buffer--normalize-args match)))
 
+
+;; #+end_src
+
+;; All match functions route through here at some point.
+
+;; #+begin_src emacs-lisp
 (defun m-buffer--match-1 (buffer regexp begin end
                                 post-match widen cfs
                                 numeric)
@@ -108,17 +120,31 @@ REGEXP -- the regexp.
 BEGIN -- the start of the region to search
 END -- the end of the region to search
 POST-MATCH -- function to run after each match
-POST-MATCH is useful for zero-width matches which will otherwise cause
-infinite loop. The buffer is searched forward.
+POST-MATCH is useful for zero-width matches which will otherwise
+cause infinite loop. The buffer is searched forward. POST-MATCH
+return can also be used to terminate the matching by returning nil.
 WIDEN -- call widen first.
 CFS -- Non-nil if searches and matches should ignore case.
 NUMERIC -- Non-nil if we should return integers not markers."
+;; #+end_src
+
+;; We start by saving everything to ensure that we do not pollute the global
+;; state. This means match-data, point, narrowing and current buffer!
+
+;; #+begin_src emacs-lisp
   (save-match-data
     (save-excursion
       (save-restriction
         (with-current-buffer
             buffer
           (when widen (widen))
+;; #+end_src
+
+;; This let form is doing a number of things. It sets up a dynamic binding for
+;; `case-fold-search', ensures a non-nil value for =end-bound= and defines a
+;; sentinal value that =post-match-return= can use to end early.
+
+;; #+begin_src emacs-lisp
           (let ((rtn nil)
                 (post-match-return t)
                 (end-bound (or end (point-max)))
@@ -127,12 +153,24 @@ NUMERIC -- Non-nil if we should return integers not markers."
                  (if (eq :default cfs)
                      case-fold-search
                    cfs)))
+;; #+end_src
+
+;; To begin at the beginning.
+
+;; #+begin_src emacs-lisp
             (goto-char
              (or begin
                  (point-min)))
             (while
                 (and
-                 ;; check the last post-match
+;; #+end_src
+
+;; The original purpose for =post-match-return= was for zero-width matches --
+;; these do not advance point beyond their end, so the while loop never
+;; terminates. Unfortunately, avoiding this depends on the regexp being called,
+;; so we provide the most general solution of all.
+
+;; #+begin_src emacs-lisp
                  post-match-return
                  ;; we need to check we are less than the end-bound
                  ;; or re-search-forward will break
@@ -140,6 +178,12 @@ NUMERIC -- Non-nil if we should return integers not markers."
                  (re-search-forward
                   regexp end-bound
                   t))
+;; #+end_src
+
+;; Store the `match-data' in a backward list, run post-match. Finally, reverse
+;; and terminate.
+
+;; #+begin_src emacs-lisp
               (setq rtn
                     (cons
                      (if numeric
@@ -150,7 +194,14 @@ NUMERIC -- Non-nil if we should return integers not markers."
               (when post-match
                 (setq post-match-return (funcall post-match))))
             (reverse rtn)))))))
+;; #+end_src
 
+;; While this is all fairly nasty, it means that I can provide a keyword argument
+;; interface to all the functions which follow. At the time of writing, we have
+;; eight arguments, most of which are not essential, so this is well worth the
+;; effort.
+
+;; #+begin_src emacs-lisp
 (defun m-buffer--normalize-args (match-with)
   "Manipulate args into a standard form and return as a list.
 MATCH-WITH are these args.This is an internal function."
@@ -206,8 +257,15 @@ MATCH-WITH are these args.This is an internal function."
          (numeric
           (plist-get pargs :numeric)))
 
-
     (list buffer regexp begin end post-match widen cfs numeric)))
+;; #+end_src
+
+;; Finally, this function provides a link between the match function, and the
+;; match manipulation functions. We can either choose to match once against a set
+;; of arguments and then apply multiple manipulations on the returned match data.
+;; Or just use the match manipulation function directly.
+
+;; #+begin_src emacs-lisp
 
 (defun m-buffer-ensure-match (&rest match)
   "Ensure that we have MATCH data.
@@ -223,9 +281,14 @@ args, assume they are of the form accepted by
    (t
     (error "Invalid arguments"))))
 
-;;
-;; Match-data manipulation
-;;
+;; #+end_src
+
+;; ** Match Data Manipulation Functions
+
+;; These functions take either a list of match-data or arguments for a match,
+;; and manipulate it in some way.
+
+;; #+begin_src emacs-lisp
 (defun m-buffer-buffer-for-match (match-data)
   "Given some MATCH-DATA return the buffer for that data."
   (marker-buffer (caar match-data)))
@@ -309,7 +372,15 @@ If `match-data' is passed markers will be set to nil after this
 function. See `m-buffer-nil-marker' for details."
   (m-buffer-marker-to-pos-nil
    (apply 'm-buffer-match-end match)))
+;; #+end_src
 
+;; ** Match Utility and Predicates
+
+;; Some predicates and the ability to subtract to lists of matches from each
+;; other. This makes up for limitations in Emacs regexp which can't do "match x
+;; but not y".
+
+;; #+begin_src emacs-lisp
 (defun m-buffer-match-equal (m n)
   "Return true if M and N are cover the same region.
 Matches are equal if they match the same region; subgroups are
@@ -382,7 +453,15 @@ in M."
       (<= position (cadr match))))
    matches))
 
-;; marker/position utility functions
+;; #+end_src
+
+;; ** Marker Position Utility
+
+;; Functions for transforming between markers and positions, and 
+;; for niling markers, to prevent buffer slow down before GC.
+
+;; #+begin_src emacs-lisp
+
 (defun m-buffer-nil-marker (markers)
   "Takes a (nested) list of MARKERS and nils them all.
 Markers slow buffer movement while they are pointing at a
@@ -444,7 +523,11 @@ The optional argument TYPE specifies the insertion type. See
      (set-marker
       (make-marker) pos buffer))
    positions))
+;; #+end_src
 
+;; ** Replace, Delete, Extract
+
+;; #+begin_src emacs-lisp
 (defun m-buffer-replace-match (match-data replacement
                                           &optional fixedcase literal subexp)
   "Given a list of MATCH-DATA, replace with REPLACEMENT.
@@ -495,9 +578,15 @@ Remove all properties from return."
    (m-buffer-match-string
     match-data subexp)))
 
-;;;
-;;; Block things detection
-;;;
+;; #+end_src
+
+;; ** Match Things
+
+;; These functions provide a set of pre-defined args for matching common
+;; entities.
+
+
+;; #+begin_src emacs-lisp
 (defun m-buffer-apply-snoc (fn list &rest element)
   "Apply FN to LIST and all ELEMENT."
   (apply
@@ -624,9 +713,15 @@ Returns true if succeeds."
     (error 'end-of-buffer
            nil)))
 
-;;
-;; Apply function to things
-;;
+
+;; #+end_src
+
+
+;; ** Apply Function to Match
+
+;; These functions call a function to some match data.
+
+;; #+begin_src emacs-lisp
 (defun m-buffer-on-region (fn match-data)
   "Apply FN to MATCH-DATA.
 FN should take two args, the start and stop of each region.
@@ -642,9 +737,13 @@ MATCH-DATA can be any list of lists with two elements (or more)."
      (apply fn x))
    (m-buffer-match-nth-group n match-data)))
 
-;;
-;; Overlays
-;;
+;; #+end_src
+
+;; ** Overlay and Property Functions
+
+;; Add properties or overlays to matches
+
+;; #+begin_src emacs-lisp
 (defun m-buffer-overlay-match (match-data &optional front-advance rear-advance)
   "Return an overlay for all match to MATCH-DATA.
 FRONT-ADVANCE and REAR-ADVANCE controls the borders of the
@@ -718,6 +817,7 @@ enabled; otherwise use `m-buffer-text-property-face'."
    'font-lock-face face))
 
 (provide 'm-buffer)
-;; #+end_src
 
-;; ;;; m-buffer.el ends here
+
+;;; m-buffer.el ends here
+;; #+end_src
