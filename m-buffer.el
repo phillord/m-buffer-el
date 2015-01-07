@@ -38,7 +38,7 @@
 ;; data or so forth. Generally, markers are returned rather than point
 ;; locations, so that it is possible for example, to search for regexp
 ;; matches, and then replace them all without the early replacement
-;; invalidating the location of the later ones. 
+;; invalidating the location of the later ones.
 
 ;; Other files provide something similar: stateless alternatives to existing
 ;; emacs functions. `m-buffer-macro' provides macros to operate in the context of

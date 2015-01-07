@@ -1,4 +1,4 @@
-;;; m-buffer-macro.el --- Stateless point functions -*- lexical-binding: t -*-
+;;; m-buffer-macro.el --- Create and dispose of markers -*- lexical-binding: t -*-
 
 ;;; Header:
 
@@ -21,14 +21,13 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-;; #+begin_src emacs-lisp
-
 ;;; Commentary:
 
 ;; Macro support for markers with post-cleanup.
 
 ;;; Code:
 
+;; #+begin_src emacs-lisp
 (defmacro m-buffer-with-markers (varlist &rest body)
   "Bind variables after VARLIST then eval BODY.
 All variables should contain markers or collections of markers.
