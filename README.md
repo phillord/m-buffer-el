@@ -29,8 +29,17 @@ with the FSF.
 
 ## Change Log
 
+### 0.8
+
+- New macros for marker usage.
+- m-buffer-at added. New stateless functions for information about Emacs buffers.
+
+#### Breaking Changes
+
+- File organisation has been refactored with some macros moved out of m-buffer.el
+
 ### 0.7
- - `m-buffer-match-first-line' added.
+- `m-buffer-match-first-line' added.
 
 ### 0.6
 
