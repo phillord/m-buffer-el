@@ -41,7 +41,7 @@
 
 (require 'm-buffer-macro)
 
-(defun m-buffer-point (buffer)
+(defun m-buffer-at-point (buffer)
   "Return the location of point in BUFFER.
 See also `point'."
   (with-current-buffer
