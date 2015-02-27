@@ -706,7 +706,7 @@ MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS. See
 (defun m-buffer-post-match-forward-char ()
   "Attempts to move forward one char.
 Returns true if succeeds."
-  (condition-case e
+  (condition-case _e
       (progn
         (forward-char)
         t)
