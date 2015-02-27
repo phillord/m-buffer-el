@@ -766,22 +766,20 @@ See Info node `(elisp) Overlays' for further information."
 See `add-text-property' for details of the format of properties.
 Text properties are associated with the text and move with it. See
 Info node `(elisp) Text Properties' for further details."
-  (let ((buffer (m-buffer-buffer-for-match match-data)))
-    (m-buffer-on-region
-     (lambda (beginning end)
-       (add-text-properties beginning end properties))
-     match-data)))
+  (m-buffer-on-region
+   (lambda (beginning end)
+     (add-text-properties beginning end properties))
+   match-data))
 
 (defun m-buffer-put-text-property-match (match-data property value)
   "To MATCH-DATA add PROPERTY wth VALUE.
 See `put-text-property' for details of the format of properties.
 Text properties are associated with the text and move with it. See
 Info node `(elisp) Text Properties' for further details."
-  (let ((buffer (m-buffer-buffer-for-match match-data)))
-    (m-buffer-on-region
-     (lambda (beginning end)
-       (put-text-property beginning end property value))
-     match-data)))
+  (m-buffer-on-region
+   (lambda (beginning end)
+     (put-text-property beginning end property value))
+   match-data))
 
 (defun m-buffer-overlay-face-match (match-data face)
   "To MATCH-DATA add FACE to the face property.
