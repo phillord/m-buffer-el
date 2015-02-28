@@ -75,7 +75,5 @@ See also `bolp'"
     (line-end-position)))
 
 (provide 'm-buffer-at)
-
-(provide 'm-buffer-at)
 ;;; m-buffer-at.el ends here
 ;; #+end_src

@@ -88,8 +88,7 @@ If a two element, it is a buffer and position."
                  (nth 0 ,loc)
                  (nth 1 ,loc)
                ,@body)
-           (t
-            (error "m-buffer-with-current-location requires a list of one or two elements")))))))
+           (error "m-buffer-with-current-location requires a list of one or two elements"))))))
 
 
 (provide 'm-buffer-macro)
