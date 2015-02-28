@@ -29,6 +29,16 @@ with the FSF.
 
 ## Change Log
 
+### 0.9
+
+#### Bug Fixes
+
+- Now byte-compiles without errors/warning
+
+#### Breaking Changes
+
+- `m-buffer-point' renamed to `m-buffer-at-point'
+
 ### 0.8
 
 - New macros for marker usage.
