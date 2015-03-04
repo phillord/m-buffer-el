@@ -538,18 +538,20 @@ Returns markers to the start and end of the replacement. These
 markers are part of MATCH-DATA, so niling them will percolate backward.
 
 See also `replace-match'."
-  (-map
-   (lambda (match)
-     (with-current-buffer
-         (marker-buffer (car match))
-       (save-match-data
-         (set-match-data match)
-         (replace-match
-          replacement fixedcase literal nil
-          (or subexp 0)))))
-   match-data)
+  (save-excursion
+    (-map
+     (lambda (match)
+       (with-current-buffer
+           (marker-buffer (car match))
+         (save-match-data
+           (set-match-data match)
+           (replace-match
+            replacement fixedcase literal nil
+            (or subexp 0)))))
+     match-data))
   ;; we have match-data
   (m-buffer-match-nth-group (or subexp 0) match-data))
+
 
 (defun m-buffer-delete-match (match-data &optional subexp)
   "Delete all MATCH-DATA.

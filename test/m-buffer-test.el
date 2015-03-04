@@ -384,4 +384,21 @@
        (19 31 19 19))
      '((1 18))))))
 
+
+(ert-deftest replace-point-unmoved ()
+  "After a replace-match has happened point
+should not have moved."
+  (should
+   (equal
+    (m-buffer-wtb-of-file
+     "match-data.txt"
+     (point-min))
+    (m-buffer-wtb-of-file
+     "match-data.txt"
+     (m-buffer-replace-match
+      (m-buffer-match
+       (current-buffer) "two")
+      "one")
+     (point)))))
+
 ;;; m-buffer-test.el ends here
