@@ -29,6 +29,12 @@ with the FSF.
 
 ## Change Log
 
+### 0.10
+
+#### Bug Fixes
+
+- m-buffer-replace-match no longer moves point
+
 ### 0.9
 
 #### Bug Fixes
