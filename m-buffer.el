@@ -29,30 +29,36 @@
 ;;; Commentary:
 
 ;; This file provides a set of list-oriented functions for operating over the
-;; contents of buffers. They avoid the use of looping, manipulating global state
-;; with `match-data'. Many high-level functions exist for matching sentences,
-;; lines and so on.
+;; contents of buffers, mostly revolving around regexp searching, and regions.
+;; They avoid the use of looping, manipulating global state with `match-data'.
+;; Many high-level functions exist for matching sentences, lines and so on.
 
-;; Functions are generally purish: i.e. they may change the state of one
-;; buffer by side-effect, but should not affect point, current buffer, match
-;; data or so forth. Generally, markers are returned rather than point
-;; locations, so that it is possible for example, to search for regexp
-;; matches, and then replace them all without the early replacement
-;; invalidating the location of the later ones.
+;; Functions are generally purish: i.e. that is those functions which do
+;; change state, by for example replacing text or adding overlays, should only
+;; change state in one way; they will not affect point, current buffer, match
+;; data or so forth.
 
-;; Other files provide something similar: stateless alternatives to existing
-;; emacs functions. `m-buffer-macro' provides macros to operate in the context of
-;; a marker, and for marker cleanup. `m-buffer-at' provides functions for
-;; operating at point (without using point!).
+;; Likewise to protect against changes in state, markers are used rather than
+;; integer positions. This means that it is possible, for example, to search
+;; for regexp matches and then replace them all without the earlier
+;; replacements invalidating the location of the later ones. Otherwise
+;; replacements need to be made in reverse order. This can have implications
+;; for performance, so m-buffer also provides functions for making markers nil;
+;; there are also macros which help manage markers in `m-buffer-macro'.
 
-;; This file is documented using lentic.el.
+;; Where possible, functions share interfaces. So most of the match functions
+;; take a list of "match" arguments, either position or as a plist, which avoids
+;; using lots of `nil' arguments. Functions operating on matches take a list of
+;; `match-data' as returned by the match functions, making it easy to chain
+;; matches.
+
+;; This file is documented using lentic.el. Use
+;; [[http://github.com/phillord/lentic-server][lentic-server]] to view.
 
 ;;; Status:
 
-;; This library is early release at the moment. I write it become I got fed up
-;; with writing (while (re-search-forward) do-stuff) forms. I found that it
-;; considerably simplified writing `linked-buffer'. The API is beginning to
-;; stablize now and should not undergo major changes.
+;; m-buffer.el is now stable and is expected to change only in
+;; forward-compatible ways.
 
 ;;; Code:
 
@@ -64,10 +70,11 @@
 
 ;; ** Regexp Matching
 
-;; This section provides the core functions which convert between Emacs' stateful
-;; matching and a more sequence oriented approach.
+;; We first provide a single match function, `m-bufffer-match' which converts
+;; between Emacs' stateful matching and a more sequence-oriented interface.
 
-;; `m-buffer-match' provides the main interface for this.
+;; This function also defines the "match" arguments which are a standard set of
+;; arguments used throughout this package.
 
 ;; #+begin_src emacs-lisp
 (defun m-buffer-match (&rest match)
@@ -101,11 +108,10 @@ function will loop infinitely. POST-MATCH can be used to avoid
 this. The buffer is searched forward."
   (apply 'm-buffer--match-1
          (m-buffer--normalize-args match)))
-
-
 ;; #+end_src
 
-;; All match functions route through here at some point.
+;; The match function is actually implemented here in the `m-buffer--match-1'
+;; function, with positional arguments.
 
 ;; #+begin_src emacs-lisp
 (defun m-buffer--match-1 (buffer regexp begin end
@@ -129,7 +135,8 @@ NUMERIC -- Non-nil if we should return integers not markers."
 ;; #+end_src
 
 ;; We start by saving everything to ensure that we do not pollute the global
-;; state. This means match-data, point, narrowing and current buffer!
+;; state. This means match-data, point, narrowing and current buffer! Hopefully
+;; this is all the global state that exists and that we are changing.
 
 ;; #+begin_src emacs-lisp
   (save-match-data
@@ -141,8 +148,9 @@ NUMERIC -- Non-nil if we should return integers not markers."
 ;; #+end_src
 
 ;; This let form is doing a number of things. It sets up a dynamic binding for
-;; `case-fold-search', ensures a non-nil value for =end-bound= and defines a
-;; sentinal value that =post-match-return= can use to end early.
+;; `case-fold-search' (which works even though we are using lexical binding),
+;; ensures a non-nil value for =end-bound= and defines a sentinal value that
+;; =post-match-return= can use to end early.
 
 ;; #+begin_src emacs-lisp
           (let ((rtn nil)
@@ -155,7 +163,8 @@ NUMERIC -- Non-nil if we should return integers not markers."
                    cfs)))
 ;; #+end_src
 
-;; To begin at the beginning.
+;; We start at the beginning. There was no particularly good reason for this, and
+;; it would have made just as much sense to go backward.
 
 ;; #+begin_src emacs-lisp
             (goto-char
@@ -169,6 +178,12 @@ NUMERIC -- Non-nil if we should return integers not markers."
 ;; these do not advance point beyond their end, so the while loop never
 ;; terminates. Unfortunately, avoiding this depends on the regexp being called,
 ;; so we provide the most general solution of all.
+
+;; As well as this, we check the return value of =post-match-return=, so as well
+;; as advancing `point' by side-effect, we can also use it to terminate the look
+;; at any point that we want; for example, we can terminate after the first match
+;; which feels more efficient than searching the whole buffer then taking the
+;; first match.
 
 ;; #+begin_src emacs-lisp
                  post-match-return
@@ -196,15 +211,21 @@ NUMERIC -- Non-nil if we should return integers not markers."
             (reverse rtn)))))))
 ;; #+end_src
 
-;; While this is all fairly nasty, it means that I can provide a keyword argument
-;; interface to all the functions which follow. At the time of writing, we have
-;; eight arguments, most of which are not essential, so this is well worth the
-;; effort.
+;; This method implements the argument list processing. I find this interface
+;; fairly attractive to use since it takes the two "main" arguments -- buffer and
+;; regexp -- as positional args optionally, and everything else as keywords. The
+;; use of keywords is pretty much essential as have eight arguments most of which
+;; are not essential.
+
+;; This is fairly close to the logic provided by `cl-defun' which I wasn't aware
+;; of when I wrote this. However `cl-defun' does not allow optional arguments
+;; before keyword arguments -- all the optional arguments have to be given if we
+;; are to use keywords.
 
 ;; #+begin_src emacs-lisp
 (defun m-buffer--normalize-args (match-with)
   "Manipulate args into a standard form and return as a list.
-MATCH-WITH are these args.This is an internal function."
+MATCH-WITH are these args. This is an internal function."
   (let* (
          ;; split up into keyword and non keyword limits
          (args
@@ -246,7 +267,7 @@ MATCH-WITH are these args.This is an internal function."
            (plist-get pargs :widen))
 
          ;; case-fold-search this needs to overwrite the buffer contents iff
-         ;; set, otherwise be ignore, so we need to distinguish a missing
+         ;; set, otherwise be ignored, so we need to distinguish a missing
          ;; property and a nil one
          (cfs
           (if (plist-member pargs :case-fold-search)
@@ -265,8 +286,17 @@ MATCH-WITH are these args.This is an internal function."
 ;; of arguments and then apply multiple manipulations on the returned match data.
 ;; Or just use the match manipulation function directly.
 
-;; #+begin_src emacs-lisp
+;; The first version of `m-buffer' did not include this but it required lots of
+;; nested calls which seem inconvenient.
 
+;; #+begin_example
+;; (m-buffer-match-manipulate
+;;   (m-buffer-match (current-buffer) "hello"))
+;; #+end_example
+
+;; I think that convienience is worth the overhead.
+
+;; #+begin_src emacs-lisp
 (defun m-buffer-ensure-match (&rest match)
   "Ensure that we have MATCH data.
 If a single arg, assume it is match data and return. If multiple
@@ -280,13 +310,12 @@ args, assume they are of the form accepted by
     (apply 'm-buffer-match match))
    (t
     (error "Invalid arguments"))))
-
 ;; #+end_src
 
 ;; ** Match Data Manipulation Functions
 
-;; These functions take either a list of match-data or arguments for a match,
-;; and manipulate it in some way.
+;; These functions manipulate lists of either match-data or match arguments in
+;; some way.
 
 ;; #+begin_src emacs-lisp
 (defun m-buffer-buffer-for-match (match-data)
@@ -385,7 +414,6 @@ function. See `m-buffer-nil-marker' for details."
   "Return true if M and N are cover the same region.
 Matches are equal if they match the same region; subgroups are
 ignored."
-  ;; can we speed this up by not making subsets?
   (and
    (equal
     (car m)
@@ -393,7 +421,12 @@ ignored."
    (equal
     (cadr m)
     (cadr n))))
+;; #+end_src
 
+;; A nice simple implementation for the general purpose solution.
+;; Unfortunately, performance sucks, running in quadratic time.
+
+;; #+begin_src emacs-lisp
 (defun m-buffer-match-subtract (m n)
   "Remove from M any match in N.
 Matches are equivalent if overall they match the same
@@ -407,7 +440,12 @@ runs faster but has some restrictions."
         (m-buffer-match-equal o p))
       n))
    m))
+;; #+end_src
 
+;; The ugly and complicated and less general solution. But it runs in linear
+;; time.
+
+;; #+begin_src emacs-lisp
 (defun m-buffer-match-exact-subtract (m n)
   "Remove from M any match in N.
 Both M and N must be fully ordered, and any element in N must be
@@ -452,16 +490,16 @@ in M."
       (<= (car match) position)
       (<= position (cadr match))))
    matches))
-
 ;; #+end_src
 
-;; ** Marker Position Utility
+;; ** Marker manipulation functions
 
-;; Functions for transforming between markers and positions, and 
-;; for niling markers, to prevent buffer slow down before GC.
+;; These functions do things to markers rather than the areas of the buffers
+;; indicated by the markers. This includes transforming between markers and
+;; integer positions, and niling markers explicitly, which prevents slow down
+;; before garbage collection.
 
 ;; #+begin_src emacs-lisp
-
 (defun m-buffer-nil-marker (markers)
   "Takes a (nested) list of MARKERS and nils them all.
 Markers slow buffer movement while they are pointing at a
@@ -579,13 +617,16 @@ Remove all properties from return."
    'substring-no-properties
    (m-buffer-match-string
     match-data subexp)))
-
 ;; #+end_src
 
 ;; ** Match Things
 
-;; These functions provide a set of pre-defined args for matching common
-;; entities.
+;; Emacs comes with a set of in-built regexps most of which we use here.
+
+;; We define `m-buffer-apply-snoc' first. The reason for this function is that
+;; we want to take a list of match arguments and add to with, for instance, a
+;; regular expression. We need to add these at the end because most of our
+;; functions contain some positional arguments.
 
 
 ;; #+begin_src emacs-lisp
@@ -593,17 +634,26 @@ Remove all properties from return."
   "Apply FN to LIST and all ELEMENT."
   (apply
    fn (append list element)))
+;; #+end_src
 
+;; For the following code, we use Emacs core regexps where possible.
+
+;; #+begin_src emacs-lisp
 (defun m-buffer-match-page (&rest match)
   "Return a list of match data to all pages in MATCH.
-MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS. See
+MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS.  See
 `m-buffer-match' for further details."
   (m-buffer-apply-snoc 'm-buffer-match
                        match :regexp page-delimiter))
+;; #+end_src
 
+;; The `paragraph-separate' regexp can match an empty region, so we need to start
+;; each search at the beginning of the next line.
+
+;; #+begin_src emacs-lisp
 (defun m-buffer-match-paragraph-separate (&rest match)
   "Return a list of match data to `paragraph-separate' in MATCH.
-MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS. See
+MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS.  See
 `m-buffer-match' for futher details."
   (m-buffer-apply-snoc
    'm-buffer-match match :regexp paragraph-separate
@@ -624,7 +674,7 @@ See `m-buffer-match for further details."
 
 (defun m-buffer-match-line-start (&rest match)
   "Return a list of match data to all line start.
-MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS. See
+MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS.  See
 `m-buffer-match' for further details."
   (m-buffer-apply-snoc
    'm-buffer-match-begin
@@ -633,25 +683,37 @@ MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS. See
 
 (defun m-buffer-match-line-end (&rest match)
   "Return a list of match to line end.
-MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS. See
+MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS.  See
 `m-buffer-match' for further details."
   (m-buffer-apply-snoc
    'm-buffer-match-begin
    match :regexp "$"
    :post-match 'm-buffer-post-match-forward-char))
+;; #+end_src
 
+;; This is the first use of the =post-match= to terminate the loop, and was
+;; actually the motivation for adding it. We automatically terminate after the
+;; first match by simply returning nil.
+
+;; #+begin_src emacs-lisp
 (defun m-buffer-match-first-line (&rest match)
-  "Returns a match to the first line of MATCH.
+  "Return a match to the first line of MATCH.
 This matches more efficiently than matching all lines and taking
-the car. See `m-buffer-match' for further details of MATCH."
+the car.  See `m-buffer-match' for further details of MATCH."
   (m-buffer-apply-snoc
    'm-buffer-match match
    :regexp m-buffer--line-regexp
    :post-match (lambda () nil)))
 
+;; #+end_src
+
+;; Emacs has a rather inconsistent interface here -- suddenly, we have a function
+;; rather than a variable for accessing a regexp.
+
+;; #+begin_src emacs-lisp
 (defun m-buffer-match-sentence-end (&rest match)
   "Return a list of match to sentence end.
-MATCH is of the form BUFFER-OR-WINDOW MATCH-OPTIONS. See
+MATCH is of the form BUFFER-OR-WINDOW MATCH-OPTIONS.  See
 `m-buffer-match' for further details."
   (m-buffer-apply-snoc
    'm-buffer-match-begin
@@ -659,7 +721,7 @@ MATCH is of the form BUFFER-OR-WINDOW MATCH-OPTIONS. See
 
 (defun m-buffer-match-word (&rest match)
   "Return a list of match to all words.
-MATCH is of the form BUFFER-OR-WINDOW MATCH-OPTIONS. See
+MATCH is of the form BUFFER-OR-WINDOW MATCH-OPTIONS.  See
 `m-buffer-match' for further details."
   (m-buffer-apply-snoc
    'm-buffer-match
@@ -667,7 +729,7 @@ MATCH is of the form BUFFER-OR-WINDOW MATCH-OPTIONS. See
 
 (defun m-buffer-match-empty-line (&rest match)
   "Return a list of match to all empty lines.
-MATCH is of the form BUFFER-OR-WINDOW MATCH-OPTIONS. See
+MATCH is of the form BUFFER-OR-WINDOW MATCH-OPTIONS.  See
 `m-buffer-match' for further details."
   (m-buffer-apply-snoc
    'm-buffer-match
@@ -691,6 +753,12 @@ further details."
    'm-buffer-match
    match :regexp "^\\s-+$"))
 
+;; #+end_src
+
+;; I don't think that there is a way to do this with regexps entirely, so we use
+;; substraction.
+
+;; #+begin_src emacs-lisp
 (defun m-buffer-match-non-whitespace-line (&rest match)
   "Return match data to all lines with at least one non-whitespace character.
 Note empty lines do not contain any non-whitespace lines.
@@ -714,14 +782,13 @@ Returns true if succeeds."
         t)
     (error 'end-of-buffer
            nil)))
-
-
 ;; #+end_src
 
 
 ;; ** Apply Function to Match
 
-;; These functions call a function to some match data.
+;; These functions apply another function to some match-data. This is pretty
+;; useful generically, but also I use it for many of the following functions.
 
 ;; #+begin_src emacs-lisp
 (defun m-buffer-on-region (fn match-data)
@@ -738,18 +805,19 @@ MATCH-DATA can be any list of lists with two elements (or more)."
    (lambda (x)
      (apply fn x))
    (m-buffer-match-nth-group n match-data)))
-
 ;; #+end_src
 
 ;; ** Overlay and Property Functions
 
-;; Add properties or overlays to matches
+;; Adding properties or overlays to match-data. The functionality here somewhat
+;; overlaps with [[https://github.com/ShingoFukuyama/ov.el][ov.el]], which I didn't know about when I wrote this. It generally
+;; works over overlays, or regexps, while m-buffer works over match-data.
 
 ;; #+begin_src emacs-lisp
 (defun m-buffer-overlay-match (match-data &optional front-advance rear-advance)
   "Return an overlay for all match to MATCH-DATA.
 FRONT-ADVANCE and REAR-ADVANCE controls the borders of the
-overlay as defined in `make-overlay'. Overlays do not scale that
+overlay as defined in `make-overlay'.  Overlays do not scale that
 well, so use `m-buffer-propertize-match' if you intend to make
 and keep many of these.
 

@@ -29,6 +29,33 @@ with the FSF.
 
 ## Change Log
 
+### 0.11
+
+This release mostly includes considerably improved documentation.
+
+There is one change which is half-way between a breaking change and a bug fix.
+Previously, in the m-buffer-match-* functions "match" arguments could take any
+keyword argument and these would over-ride any arguments already set. This
+means that a call such as:
+
+    (m-buffer-match-page (current-buffer) :regexp "this")
+
+would behave the same as:
+
+    (m-buffer-match (current-buffer) :regexp "this")
+
+rather than matching pages. Alternatively, this call:
+
+    (m-buffer-match-line
+       (current-buffer)
+       :post-match (lambda () t))
+
+never terminates. Both of these now throw an error instead.
+
+#### Breaking Changes
+
+- m-buffer-match-* functions now error 
+
 ### 0.10
 
 #### Bug Fixes

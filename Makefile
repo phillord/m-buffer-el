@@ -13,7 +13,7 @@ test: install
 clean:
 	find . -name "m-buffer*org" -not -name "m-buffer-doc.org" \
 	   -exec rm {} \;
-	rm m-buffer-doc.html
+	- rm m-buffer-doc.html
 
 
 .PHONY: test
