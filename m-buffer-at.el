@@ -69,7 +69,7 @@ See also `bolp'"
     (line-beginning-position)))
 
 (defun m-buffer-at-line-end-position (&rest location)
-  "REturn the end of the line of LOCATION."
+  "Return the end of the line of LOCATION."
   (m-buffer-with-current-location
       location
     (line-end-position)))
