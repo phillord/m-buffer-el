@@ -23,15 +23,29 @@
 
 ;;; Commentary:
 
-;; Macro support for markers with post-cleanup.
+;; This file provides some utility macros which help to support stateless
+;; operation on buffers, by restoring global state after to what it was before
+;; the macro starts.
+
+;; These macros are quite useful, but with the exception of
+;; `m-buffer-with-markers', they are mostly meant to underpin `m-buffer-at'.
 
 ;;; Code:
+
+;; ** Markers
+
+;; Markers are generally much nicer than integers, but needs cleaning up
+;; afterwards if a lot are created. It's possible to do this using
+;; `m-buffer-nil-marker', but it can be a bit painful. This form looks like a
+;; `let' form, but removes markers at the end.
+
 
 ;; #+begin_src emacs-lisp
 (defmacro m-buffer-with-markers (varlist &rest body)
   "Bind variables after VARLIST then eval BODY.
-All variables should contain markers or collections of markers.
-All markers are niled after BODY."
+VARLIST is of the same form as `let'. All variables should
+contain markers or collections of markers. All markers are niled
+after BODY."
   ;; indent let part specially, and debug like let
   (declare (indent 1)(debug let))
   ;; so, create a rtn var with make-symbol (for hygene)
@@ -48,7 +62,14 @@ All markers are niled after BODY."
        (m-buffer-nil-marker
         (list ,@marker-vars))
        ,rtn-var)))
+;; #+end_src
 
+;; ** Point and Buffer
+
+;; These macros are extensions of `with-current-buffer', and `save-excursion',
+;; which set the current buffer and location.
+
+;; #+begin_src emacs-lisp
 (defmacro m-buffer-with-current-marker
     (marker &rest body)
   "At MARKER location run BODY."
@@ -69,7 +90,11 @@ All markers are niled after BODY."
      (save-excursion
        (goto-char ,location)
       ,@body)))
+;; #+end_src
 
+;; Combines the last two!
+
+;; #+begin_src emacs-lisp
 (defmacro m-buffer-with-current-location
     (location &rest body)
   "At LOCATION, run BODY.
@@ -92,6 +117,6 @@ If a two element, it is a buffer and position."
 
 
 (provide 'm-buffer-macro)
+;;; m-buffer-macro.el ends here
 ;; #+end_src
 
-;;; m-buffer-macro.el ends here
