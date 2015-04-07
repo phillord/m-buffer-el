@@ -401,4 +401,10 @@ should not have moved."
       "one")
      (point)))))
 
+(ert-deftest match-error ()
+  "Should error because we try to override existing args."
+  (should-error
+   (m-buffer-match-word
+    (current-buffer) :regexp "notword")))
+
 ;;; m-buffer-test.el ends here

@@ -623,17 +623,35 @@ Remove all properties from return."
 
 ;; Emacs comes with a set of in-built regexps most of which we use here.
 
-;; We define `m-buffer-apply-snoc' first. The reason for this function is that
+;; We define `m-buffer-apply-join' first. The reason for this function is that
 ;; we want to take a list of match arguments and add to with, for instance, a
 ;; regular expression. We need to add these at the end because most of our
 ;; functions contain some positional arguments.
 
 
 ;; #+begin_src emacs-lisp
-(defun m-buffer-apply-snoc (fn list &rest element)
-  "Apply FN to LIST and all ELEMENT."
-  (apply
-   fn (append list element)))
+(defun m-buffer-apply-join (fn match &rest more-match)
+  (let*
+      ((args
+        (-take-while
+         (lambda (x) (not (keywordp x)))
+         match))
+       (pargs
+        (-drop-while
+         (lambda (x) (not (keywordp x)))
+         match))
+       (more-keywords
+        (-map
+         'car
+         (-partition 2 more-match))))
+    (when
+        (-first
+         (lambda (keyword)
+           (plist-member pargs keyword))
+         more-keywords)
+      (error
+       "Match arg contradicts a defined argument."))
+    (apply fn (append args more-match pargs))))
 ;; #+end_src
 
 ;; For the following code, we use Emacs core regexps where possible.
@@ -643,7 +661,7 @@ Remove all properties from return."
   "Return a list of match data to all pages in MATCH.
 MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS.  See
 `m-buffer-match' for further details."
-  (m-buffer-apply-snoc 'm-buffer-match
+  (m-buffer-apply-join 'm-buffer-match
                        match :regexp page-delimiter))
 ;; #+end_src
 
@@ -655,7 +673,7 @@ MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS.  See
   "Return a list of match data to `paragraph-separate' in MATCH.
 MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS.  See
 `m-buffer-match' for futher details."
-  (m-buffer-apply-snoc
+  (m-buffer-apply-join
    'm-buffer-match match :regexp paragraph-separate
    :post-match 'm-buffer-post-match-forward-line))
 
@@ -667,7 +685,7 @@ MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS.  See
   "Return a list of match data to all lines.
 MATCH is of the form BUFFER-OR-WINDOW MATCH-OPTIONS.
 See `m-buffer-match for further details."
-  (m-buffer-apply-snoc
+  (m-buffer-apply-join
    'm-buffer-match
    match :regexp m-buffer--line-regexp
    :post-match 'm-buffer-post-match-forward-char))
@@ -676,7 +694,7 @@ See `m-buffer-match for further details."
   "Return a list of match data to all line start.
 MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS.  See
 `m-buffer-match' for further details."
-  (m-buffer-apply-snoc
+  (m-buffer-apply-join
    'm-buffer-match-begin
    match :regexp  "^"
    :post-match 'm-buffer-post-match-forward-char))
@@ -685,7 +703,7 @@ MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS.  See
   "Return a list of match to line end.
 MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS.  See
 `m-buffer-match' for further details."
-  (m-buffer-apply-snoc
+  (m-buffer-apply-join
    'm-buffer-match-begin
    match :regexp "$"
    :post-match 'm-buffer-post-match-forward-char))
@@ -700,7 +718,7 @@ MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS.  See
   "Return a match to the first line of MATCH.
 This matches more efficiently than matching all lines and taking
 the car.  See `m-buffer-match' for further details of MATCH."
-  (m-buffer-apply-snoc
+  (m-buffer-apply-join
    'm-buffer-match match
    :regexp m-buffer--line-regexp
    :post-match (lambda () nil)))
@@ -715,7 +733,7 @@ the car.  See `m-buffer-match' for further details of MATCH."
   "Return a list of match to sentence end.
 MATCH is of the form BUFFER-OR-WINDOW MATCH-OPTIONS.  See
 `m-buffer-match' for further details."
-  (m-buffer-apply-snoc
+  (m-buffer-apply-join
    'm-buffer-match-begin
    match :regexp (sentence-end)))
 
@@ -723,7 +741,7 @@ MATCH is of the form BUFFER-OR-WINDOW MATCH-OPTIONS.  See
   "Return a list of match to all words.
 MATCH is of the form BUFFER-OR-WINDOW MATCH-OPTIONS.  See
 `m-buffer-match' for further details."
-  (m-buffer-apply-snoc
+  (m-buffer-apply-join
    'm-buffer-match
    match :regexp "\\\w+"))
 
@@ -731,7 +749,7 @@ MATCH is of the form BUFFER-OR-WINDOW MATCH-OPTIONS.  See
   "Return a list of match to all empty lines.
 MATCH is of the form BUFFER-OR-WINDOW MATCH-OPTIONS.  See
 `m-buffer-match' for further details."
-  (m-buffer-apply-snoc
+  (m-buffer-apply-join
    'm-buffer-match
    match :regexp "^$"
    :post-match 'm-buffer-post-match-forward-line))
@@ -740,7 +758,7 @@ MATCH is of the form BUFFER-OR-WINDOW MATCH-OPTIONS.  See
   "Return a list of match to all non-empty lines.
 MATCH is fo the form BUFFER-OR-WINDOW MATCH-OPTIONS. See
 `m-buffer-match' for further details."
-  (m-buffer-apply-snoc
+  (m-buffer-apply-join
    'm-buffer-match
    match :regexp "^.+$"))
 
@@ -749,7 +767,7 @@ MATCH is fo the form BUFFER-OR-WINDOW MATCH-OPTIONS. See
 Note empty lines are not included. MATCH is of form
 BUFFER-OR-WINDOW MATCH-OPTIONS. See `m-buffer-match' for
 further details."
-  (m-buffer-apply-snoc
+  (m-buffer-apply-join
    'm-buffer-match
    match :regexp "^\\s-+$"))
 
