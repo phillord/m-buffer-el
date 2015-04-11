@@ -56,6 +56,13 @@ m-buffer-macro.el provides some general purpose macros for:
 #+include: "m-buffer-macro.org" :minlevel 2
 
 
+* m-buffer-benchmark
+
+m-buffer-benchmark.el provides no functions, but is a set of benchmarks to
+give some idea of how much overhead various m-buffer functions entail.
+
+#+include: "m-buffer-benchmark.org" :minlevel 2
+
 * Roadmap
 
 ** 0.11

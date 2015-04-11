@@ -28,7 +28,11 @@
 ;; the macro starts.
 
 ;; These macros are quite useful, but with the exception of
-;; `m-buffer-with-markers', they are mostly meant to underpin `m-buffer-at'.
+;; `m-buffer-with-markers', they are mostly meant to underpin `m-buffer-at'. The
+;; aim is that all the cases where one of these macros is used with a single form
+;; from core Emacs should be provided by m-buffer-at (although this is not the
+;; case yet). These macros might be more efficient if there are a lot of calls to
+;; group together.
 
 ;;; Code:
 
@@ -38,7 +42,6 @@
 ;; afterwards if a lot are created. It's possible to do this using
 ;; `m-buffer-nil-marker', but it can be a bit painful. This form looks like a
 ;; `let' form, but removes markers at the end.
-
 
 ;; #+begin_src emacs-lisp
 (defmacro m-buffer-with-markers (varlist &rest body)
@@ -115,8 +118,6 @@ If a two element, it is a buffer and position."
                ,@body)
            (error "m-buffer-with-current-location requires a list of one or two elements"))))))
 
-
 (provide 'm-buffer-macro)
 ;;; m-buffer-macro.el ends here
 ;; #+end_src
-
