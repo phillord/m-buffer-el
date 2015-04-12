@@ -12,7 +12,9 @@ point locations so that it is possible, for example, to search for regexp
 matches and then replace them all without the early replacement invalidating
 the location of the later ones.
 
-For full commentary, please see [m-buffer.el](m-buffer.el).
+m-buffer is now documented with
+[Lentic Server](https://github.com/phillord/lentic-server).
+
 
 ## Status
 
@@ -54,7 +56,7 @@ never terminates. Both of these now throw an error instead.
 
 #### Breaking Changes
 
-- m-buffer-match-* functions now error 
+- m-buffer-match-* functions now error on conflicting arguments
 
 ### 0.10
 

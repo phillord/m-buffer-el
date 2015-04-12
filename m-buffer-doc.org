@@ -69,6 +69,7 @@ give some idea of how much overhead various m-buffer functions entail.
 
 Full lentic documentation using lentic-server
 
+
 ** 0.12
 
 Completion of m-buffer-at with all the core buffer functions.

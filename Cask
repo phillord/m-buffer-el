@@ -5,4 +5,5 @@
 (package-file "m-buffer.el")
 
 (development
+ (depends-on "load-relative")
  (depends-on "ert-runner"))
