@@ -407,4 +407,18 @@ should not have moved."
    (m-buffer-match-word
     (current-buffer) :regexp "notword")))
 
+
+(ert-deftest partition-by-markers ()
+  (should
+   (equal
+    '((nil 1)
+      (2 2 3 4)
+      (5 5 6 7)
+      (8 8 9))
+    (m-buffer-partition-by-marker
+     '(1 2 3 4 5 6 7 8 9)
+     '(2 5 8)
+     ))))
+
+
 ;;; m-buffer-test.el ends here

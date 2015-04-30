@@ -405,6 +405,8 @@ function. See `m-buffer-nil-marker' for details."
 
 ;; ** Match Utility and Predicates
 
+;; *** Subtraction
+
 ;; Some predicates and the ability to subtract to lists of matches from each
 ;; other. This makes up for limitations in Emacs regexp which can't do "match x
 ;; but not y".
@@ -491,6 +493,36 @@ in M."
       (<= position (cadr match))))
    matches))
 ;; #+end_src
+
+
+;; *** Partition
+
+;; Partition one set of markers by another. This is useful for finding matched
+;; pairs of markers.
+
+;; #+begin_src emacs-lisp
+(defun m-buffer--split-partition (partition)
+  (let ((current nil))
+    (lambda (n)
+      (when
+          (and partition
+               (<= (car partition) n))
+        (setq current (car partition))
+        (setq partition (-drop 1 partition)))
+      current)))
+
+(defun m-buffer-partition-by-marker (list partition)
+  "Given LIST of markers, split at markers in PARTITION.
+Returns a list of lists. The first element of each list is nil or
+the marker from PARTITION. The rest of the elements are those
+elements in LIST which are at the same position or later in the
+buffer than the element from PARTITION, but before the next
+element from PARTITION.
+
+Both LIST and PARTITION must be sorted."
+  (-group-by (m-buffer--split-partition partition) list))
+;; #+end_src
+
 
 ;; ** Marker manipulation functions
 
