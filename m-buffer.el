@@ -11,7 +11,7 @@
 
 ;; The contents of this file are subject to the GPL License, Version 3.0.
 
-;; Copyright (C) 2014, Phillip Lord, Newcastle University
+;; Copyright (C) 2014, 2015, Phillip Lord, Newcastle University
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -139,11 +139,11 @@ NUMERIC -- Non-nil if we should return integers not markers."
 ;; this is all the global state that exists and that we are changing.
 
 ;; #+begin_src emacs-lisp
-  (save-match-data
-    (save-excursion
-      (save-restriction
-        (with-current-buffer
-            buffer
+  (with-current-buffer
+      buffer
+    (save-match-data
+      (save-excursion
+        (save-restriction
           (when widen (widen))
 ;; #+end_src
 

@@ -421,4 +421,30 @@ should not have moved."
      ))))
 
 
+(ert-deftest point-stationionary-with-current ()
+  "This test addresses a bug where m-buffer did not correctly
+protect global state when the buffer being operated on was not
+current -- in this case, a match could move point.
+
+The two clauses are identical, one changing the current buffer
+and one changing a buffer which is not current."
+  (should
+   (let ((out) (out-point))
+     (with-temp-buffer
+       (insert "one\ntwo\nthree\n")
+       (setq out (current-buffer))
+       (setq out-point (point))
+       (m-buffer-match-first-line out)
+       (= (point) out-point))))
+
+   (should
+    (let ((out) (out-point))
+      (with-temp-buffer
+        (insert "one\ntwo\nthree\n")
+        (setq out (current-buffer))
+        (setq out-point (point))
+        (with-temp-buffer
+          (m-buffer-match-first-line out))
+        (= (point) out-point)))))
+
 ;;; m-buffer-test.el ends here
