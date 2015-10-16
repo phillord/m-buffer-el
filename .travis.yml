@@ -1,4 +1,4 @@
-language: emacs-lisp
+language: generic
 sudo: no
 env:
   - EVM_EMACS=emacs-24.1-travis
