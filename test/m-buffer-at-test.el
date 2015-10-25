@@ -29,3 +29,11 @@
      (m-buffer-at-eolp
       (current-buffer)
       (point)))))
+
+(ert-deftest m-buffer-string ()
+  (should
+   (string=
+    "hello"
+    (with-temp-buffer
+      (insert "hello")
+      (m-buffer-at-string (current-buffer))))))
