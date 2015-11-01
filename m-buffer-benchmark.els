@@ -1,3 +1,7 @@
+;;; -*- emacs-lisp -*-
+
+;;
+
 ;;; Benchmarking:
 
 ;; This file is not meant a emacs package, but for benchmarking m-buffer.
@@ -143,3 +147,8 @@
 
 ;; #+RESULTS:
 ;; : 1.011448e-01
+
+
+;; # Local Variables:
+;; # lentic-init: lentic-el-org-init
+;; # End:
