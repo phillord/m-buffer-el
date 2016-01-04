@@ -31,6 +31,21 @@ with the FSF.
 
 ## Change Log
 
+### 0.13
+
+New function added `m-buffer-at-string`
+
+#### Bug Fixes
+
+- m-buffer was actually moving point, because the state was saved before
+  changing buffer.
+- The benchmark documentation file was being compiled and run on installation,
+  when it is supposed to serve as static documentation.
+
+### 0.12
+
+New funtion added: `m-buffer-partition-by-marker`
+
 ### 0.11
 
 This release mostly includes considerably improved documentation.
