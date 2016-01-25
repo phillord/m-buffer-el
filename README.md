@@ -31,6 +31,10 @@ with the FSF.
 
 ## Change Log
 
+### 0.14
+
+New function added `m-buffer-match-multi`
+
 ### 0.13
 
 New function added `m-buffer-at-string`

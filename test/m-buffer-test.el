@@ -217,6 +217,18 @@
       (m-buffer-match-first-line
        (current-buffer)))))))
 
+(ert-deftest multi-match ()
+  (should
+   (equal
+    '((1 4) (5 8) (13 18))
+    (m-buffer-wtb-of-file
+     "one-two-three.txt"
+     (m-buffer-marker-tree-to-pos
+      (m-buffer-match-multi
+       '("one" "two" "three")
+       :buffer (current-buffer))))))
+    )
+
 (ert-deftest sentence-end ()
   (should
    (equal
