@@ -87,6 +87,13 @@
            :widen 4 :case-fold-search 5 :numeric 6)))))
 
 
+(defun m-buffer--flatten (l)
+  (if (listp l)
+      (apply 'append
+       (seq-map
+        'm-buffer--flatten l))
+    (list l)))
+
 (ert-deftest m-buffer-matches ()
   (should
    (= 3
@@ -97,9 +104,9 @@
          (current-buffer)
          "^one$")))))
   (should
-   (-every?
+   (seq-every-p
     'markerp
-    (-flatten
+    (m-buffer--flatten
      (m-buffer-wtb-of-file
       "match-data.txt"
       (m-buffer-match
@@ -108,7 +115,7 @@
 
 (ert-deftest m-buffer-match-begin ()
   (should
-   (-every?
+   (seq-every-p
     'markerp
     (m-buffer-wtb-of-file
      "match-data.txt"
@@ -140,7 +147,7 @@
   (should
    (m-buffer-wtb-of-file
     "match-data.txt"
-    (-all?
+    (seq-every-p
      (lambda (marker)
        (and
         (marker-position marker)
@@ -149,7 +156,7 @@
   (should
    (m-buffer-wtb-of-file
     "match-data.txt"
-    (-all?
+    (seq-every-p
      (lambda (marker)
        (and
         (not (marker-position marker))

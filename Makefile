@@ -1,16 +1,29 @@
 EMACS ?= emacs
 CASK ?= cask
 
-all: install test
+-include makefile-local
+
+ifdef EMACS
+EMACS_ENV=EMACS=$(EMACS)
+endif
+
+
+all: test
 
 install:
-	cask install
+	$(EMACS_ENV) $(CASK) install
 
-test: install
-	cask exec ert-runner
+just-test:
+	$(EMACS_ENV) $(CASK) emacs --batch -q \
+	--directory=. \
+	--load "assess-discover" \
+	--funcall assess-discover-run-and-exit-batch
+
+test: install just-test
+
 
 doc-gen:
-	cask exec emacs --debug --script dev/doc-gen.el -f doc-gen
+	$(EMACS_ENV) $(CASK) exec $(EMACS) --debug --script dev/doc-gen.el -f doc-gen
 
 clean:
 	find . -name "m-buffer*org" -not -name "m-buffer-doc.org" \
