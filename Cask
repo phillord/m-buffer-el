@@ -1,10 +1,9 @@
 (source gnu)
-(source melpa-stable)
-(source marmalade)
+(source melpa)
 
 (package-file "m-buffer.el")
 (files "m-buffer*el" "m-buffer*els")
 
 (development
  (depends-on "load-relative")
- (depends-on "ert-runner"))
+ (depends-on "assess"))
