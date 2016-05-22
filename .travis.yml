@@ -12,7 +12,7 @@ install:
   ## delete all the el files
   - find /tmp -name "*el"
   - find /tmp -name "*elc"
-  - find /tmp -name "*elc" | sed 's/.$//' | xargs rm
+  - find /tmp -name "*elc" | sed 's/.$//' | xargs rm -f
   - cask
 script:
   - emacs --version
