@@ -35,6 +35,21 @@ regexps, as well as the ability to do things with these matches: replace, add
 overlays or text-properties or, most generically of all, call any function on
 matches.
 
+Example:
+
+The following will return a list of markers:
+
+: (m-buffer-match (current-buffer) "a regexp")
+
+
+If you want a list of strings, do:
+
+#+BEGIN_SRC emacs-lisp
+(m-buffer-match-string-no-properties
+    (m-buffer-match (current-buffer) "a regexp"))
+#+END_SRC
+
+
 #+include: "m-buffer.org" :minlevel 2
 
 
