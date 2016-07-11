@@ -21,6 +21,10 @@ m-buffer is now documented with
 The code is now in active use. APIs are open to change, but I am not intending
 to.
 
+## Documentation
+
+Please read [m-buffer-doc.org](m-buffer-doc.org).
+
 ## Contributions
 
 Contributions are welcome. However, I would like to keep the option of hosting
