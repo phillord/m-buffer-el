@@ -1,0 +1,1973 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<title>Manipulate the Contents of Emacs Buffers</title>
+<!-- 2016-07-14 Thu 19:16 -->
+<meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta  name="generator" content="Org-mode" />
+<meta  name="author" content="Phillip Lord" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { color: green; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  pre.src-sh:before    { content: 'sh'; }
+  pre.src-bash:before  { content: 'sh'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-R:before     { content: 'R'; }
+  pre.src-perl:before  { content: 'Perl'; }
+  pre.src-java:before  { content: 'Java'; }
+  pre.src-sql:before   { content: 'SQL'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.right  { text-align: center;  }
+  th.left   { text-align: center;   }
+  th.center { text-align: center; }
+  td.right  { text-align: right;  }
+  td.left   { text-align: left;   }
+  td.center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara:nth-child(2) { display: inline; }
+  .footpara { display: block; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  /*]]>*/-->
+</style>
+
+<script type="text/javascript" src="http://orgmode.org/org-info.js">
+/**
+ *
+ * @source: http://orgmode.org/org-info.js
+ *
+ * @licstart  The following is the entire license notice for the
+ *  JavaScript code in http://orgmode.org/org-info.js.
+ *
+ * Copyright (C) 2012-2013 Free Software Foundation, Inc.
+ *
+ *
+ * The JavaScript code in this tag is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU
+ * General Public License (GNU GPL) as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option)
+ * any later version.  The code is distributed WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+ *
+ * As additional permission under GNU GPL version 3 section 7, you
+ * may distribute non-source (e.g., minimized or compacted) forms of
+ * that code without the copy of the GNU GPL normally required by
+ * section 4, provided you include this license notice and a URL
+ * through which recipients can access the Corresponding Source.
+ *
+ * @licend  The above is the entire license notice
+ * for the JavaScript code in http://orgmode.org/org-info.js.
+ *
+ */
+</script>
+
+<script type="text/javascript">
+
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2013 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+
+<!--/*--><![CDATA[/*><!--*/
+org_html_manager.set("TOC_DEPTH", "3");
+org_html_manager.set("LINK_HOME", "");
+org_html_manager.set("LINK_UP", "");
+org_html_manager.set("LOCAL_TOC", "1");
+org_html_manager.set("VIEW_BUTTONS", "0");
+org_html_manager.set("MOUSE_HINT", "underline");
+org_html_manager.set("FIXED_TOC", "0");
+org_html_manager.set("TOC", "0");
+org_html_manager.set("VIEW", "info");
+org_html_manager.setup();  // activate after the parameters are set
+/*]]>*///-->
+</script>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2013 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">Manipulate the Contents of Emacs Buffers</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1. Introduction</a>
+<ul>
+<li><a href="#sec-1-1">1.1. Status</a></li>
+<li><a href="#sec-1-2">1.2. Caveat to Documentation</a></li>
+</ul>
+</li>
+<li><a href="#sec-2">2. m-buffer</a>
+<ul>
+<li><a href="#sec-2-1">2.1. Header</a></li>
+<li><a href="#sec-2-2">2.2. Commentary</a></li>
+<li><a href="#sec-2-3">2.3. Status</a></li>
+<li><a href="#sec-2-4">2.4. Code</a>
+<ul>
+<li><a href="#sec-2-4-1">2.4.1. Regexp Matching</a></li>
+<li><a href="#sec-2-4-2">2.4.2. Match Data Manipulation Functions</a></li>
+<li><a href="#sec-2-4-3">2.4.3. Match Utility and Predicates</a></li>
+<li><a href="#sec-2-4-4">2.4.4. Marker manipulation functions</a></li>
+<li><a href="#sec-2-4-5">2.4.5. Replace, Delete, Extract</a></li>
+<li><a href="#sec-2-4-6">2.4.6. Match Things</a></li>
+<li><a href="#sec-2-4-7">2.4.7. Apply Function to Match</a></li>
+<li><a href="#sec-2-4-8">2.4.8. Overlay and Property Functions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#sec-3">3. m-buffer-at</a>
+<ul>
+<li><a href="#sec-3-1">3.1. Header</a></li>
+<li><a href="#sec-3-2">3.2. Commentary</a></li>
+<li><a href="#sec-3-3">3.3. Status</a></li>
+<li><a href="#sec-3-4">3.4. Code</a></li>
+</ul>
+</li>
+<li><a href="#sec-4">4. m-buffer-macro</a>
+<ul>
+<li><a href="#sec-4-1">4.1. Header</a></li>
+<li><a href="#sec-4-2">4.2. Commentary</a></li>
+<li><a href="#sec-4-3">4.3. Code</a>
+<ul>
+<li><a href="#sec-4-3-1">4.3.1. Markers</a></li>
+<li><a href="#sec-4-3-2">4.3.2. Point and Buffer</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#sec-5">5. m-buffer-benchmark</a>
+<ul>
+<li><a href="#sec-5-1">5.1. Benchmarking</a>
+<ul>
+<li><a href="#sec-5-1-1">5.1.1. Evaluation</a></li>
+<li><a href="#sec-5-1-2">5.1.2. Support</a></li>
+<li><a href="#sec-5-1-3">5.1.3. How Long does it take to change current-buffer</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#sec-6">6. Roadmap</a>
+<ul>
+<li><a href="#sec-6-1">6.1. 0.11</a></li>
+<li><a href="#sec-6-2">6.2. 0.12</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1"><span class="section-number-2">1</span> Introduction</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+m-buffer provides functions for accessing and manipulating the contents of an
+Emacs buffer. While Emacs already provides these features, m-buffer provides a
+higher-level interaction. It achieves this in several ways: many of the
+functions are list-orientated, so avoiding the need for iteration; it avoids
+the use of global emacs state whenever it can be avoided, so avoiding
+side-effects. And, it adds some macros for cleanup, so again, helping to
+manage the process of global state where it can be avoided.
+</p>
+</div>
+
+
+<div id="outline-container-sec-1-1" class="outline-3">
+<h3 id="sec-1-1"><span class="section-number-3">1.1</span> Status</h3>
+<div class="outline-text-3" id="text-1-1">
+<p>
+`m-buffer' is a work in progress, but much of it is now stable and the
+interface should change only in forward-compatible ways for 1.0 release.
+The individual files have statements about their stability.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-1-2" class="outline-3">
+<h3 id="sec-1-2"><span class="section-number-3">1.2</span> Caveat to Documentation</h3>
+<div class="outline-text-3" id="text-1-2">
+<p>
+This is the first version of m-buffer with full <a href="http://github.com/phillord/lentic">lenticular</a> documentation. Both
+lentic and this documentation are a work in progress. They will improve.
+</p>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2"><span class="section-number-2">2</span> m-buffer</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+m-buffer.el provides list-orientated search both for any regexp and standard
+regexps, as well as the ability to do things with these matches: replace, add
+overlays or text-properties or, most generically of all, call any function on
+matches.
+</p>
+</div>
+
+<div id="outline-container-sec-2-1" class="outline-3">
+<h3 id="sec-2-1"><span class="section-number-3">2.1</span> Header</h3>
+<div class="outline-text-3" id="text-2-1">
+<p>
+This file is not part of Emacs
+</p>
+
+<p>
+Author: Phillip Lord &lt;phillip.lord@newcastle.ac.uk&gt;
+Maintainer: Phillip Lord &lt;phillip.lord@newcastle.ac.uk&gt;
+Version: 0.13
+Package-Requires: ((dash "2.8.0")(emacs "24.3"))
+</p>
+
+<p>
+The contents of this file are subject to the GPL License, Version 3.0.
+</p>
+
+<p>
+Copyright (C) 2014, 2015, Phillip Lord, Newcastle University
+</p>
+
+<p>
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version
+</p>
+
+<p>
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+</p>
+
+<p>
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2-2" class="outline-3">
+<h3 id="sec-2-2"><span class="section-number-3">2.2</span> Commentary</h3>
+<div class="outline-text-3" id="text-2-2">
+<p>
+This file provides a set of list-oriented functions for operating over the
+contents of buffers, mostly revolving around regexp searching, and regions.
+They avoid the use of looping, manipulating global state with `match-data'.
+Many high-level functions exist for matching sentences, lines and so on.
+</p>
+
+<p>
+Functions are generally purish: i.e. that is those functions which do
+change state, by for example replacing text or adding overlays, should only
+change state in one way; they will not affect point, current buffer, match
+data or so forth.
+</p>
+
+<p>
+Likewise to protect against changes in state, markers are used rather than
+integer positions. This means that it is possible, for example, to search
+for regexp matches and then replace them all without the earlier
+replacements invalidating the location of the later ones. Otherwise
+replacements need to be made in reverse order. This can have implications
+for performance, so m-buffer also provides functions for making markers nil;
+there are also macros which help manage markers in `m-buffer-macro'.
+</p>
+
+<p>
+Where possible, functions share interfaces. So most of the match functions
+take a list of "match" arguments, either position or as a plist, which avoids
+using lots of `nil' arguments. Functions operating on matches take a list of
+`match-data' as returned by the match functions, making it easy to chain
+matches.
+</p>
+
+<p>
+This file is documented using lentic.el. Use
+<a href="http://github.com/phillord/lentic-server">lentic-server</a> to view.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2-3" class="outline-3">
+<h3 id="sec-2-3"><span class="section-number-3">2.3</span> Status</h3>
+<div class="outline-text-3" id="text-2-3">
+<p>
+m-buffer.el is now stable and is expected to change only in
+forward-compatible ways.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2-4" class="outline-3">
+<h3 id="sec-2-4"><span class="section-number-3">2.4</span> Code</h3>
+<div class="outline-text-3" id="text-2-4">
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #00ffff;">require</span> '<span style="color: #7fffd4;">dash</span>)
+(<span style="color: #00ffff;">require</span> '<span style="color: #7fffd4;">m-buffer-macro</span>)
+</pre>
+</div>
+</div>
+
+<div id="outline-container-sec-2-4-1" class="outline-4">
+<h4 id="sec-2-4-1"><span class="section-number-4">2.4.1</span> Regexp Matching</h4>
+<div class="outline-text-4" id="text-2-4-1">
+<p>
+We first provide a single match function, `m-bufffer-match' which converts
+between Emacs' stateful matching and a more sequence-oriented interface.
+</p>
+
+<p>
+This function also defines the "match" arguments which are a standard set of
+arguments used throughout this package.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-match</span> (<span style="color: #98fb98;">&amp;rest</span> match)
+  <span style="color: #ffa07a;">"Return a list of all `</span><span style="color: #7fffd4;">match-data</span><span style="color: #ffa07a;">' for MATCH.</span>
+<span style="color: #ffa07a;">MATCH may be of the forms:</span>
+<span style="color: #ffa07a;">BUFFER REGEXP &amp;optional MATCH-OPTIONS</span>
+<span style="color: #ffa07a;">WINDOW REGEXP &amp;optional MATCH-OPTIONS</span>
+<span style="color: #ffa07a;">MATCH-OPTIONS</span>
+
+<span style="color: #ffa07a;">If BUFFER is given, search this buffer. If WINDOW is given search</span>
+<span style="color: #ffa07a;">the visible window. MATCH-OPTIONS is a plist with any of the</span>
+<span style="color: #ffa07a;">following keys:</span>
+<span style="color: #ffa07a;">:buffer -- the buffer to search</span>
+<span style="color: #ffa07a;">:regexp -- the regexp to search with</span>
+<span style="color: #ffa07a;">:begin -- the start of the region to search -- default point min</span>
+<span style="color: #ffa07a;">:end -- the end of the region to search -- default point max</span>
+<span style="color: #ffa07a;">:post-match -- function called after a match -- default nil</span>
+<span style="color: #ffa07a;">:widen -- if true, widen buffer first -- default nil</span>
+<span style="color: #ffa07a;">:case-fold-search value of `</span><span style="color: #7fffd4;">case-fold-search</span><span style="color: #ffa07a;">' during search.</span>
+<span style="color: #ffa07a;">If :default accept the current buffer-local value</span>
+<span style="color: #ffa07a;">:numeric -- if true, return integers not markers</span>
+
+<span style="color: #ffa07a;">If options are expressed in two places, the plist form takes</span>
+<span style="color: #ffa07a;">precedence over positional args. So calling with both a first</span>
+<span style="color: #ffa07a;">position buffer and a :buffer arg will use the second. Likewise,</span>
+<span style="color: #ffa07a;">if a window is given as first arg and :end is given, then</span>
+<span style="color: #ffa07a;">the :end value will be used.</span>
+
+<span style="color: #ffa07a;">REGEXP should advance point (i.e. not be zero-width) or the</span>
+<span style="color: #ffa07a;">function will loop infinitely. POST-MATCH can be used to avoid</span>
+<span style="color: #ffa07a;">this. The buffer is searched forward."</span>
+  (apply 'm-buffer--match-1
+         (m-buffer--normalize-args match)))
+</pre>
+</div>
+
+<p>
+The match function is actually implemented here in the `m-buffer&#x2013;match-1'
+function, with positional arguments.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer--match-1</span> (buffer regexp begin end
+                                post-match widen cfs
+                                numeric)
+  <span style="color: #ffa07a;">"Return a list of `</span><span style="color: #7fffd4;">match-data</span><span style="color: #ffa07a;">'.</span>
+
+<span style="color: #ffa07a;">This is an internal function: please prefer `</span><span style="color: #7fffd4;">m-buffer-match</span><span style="color: #ffa07a;">'.</span>
+
+<span style="color: #ffa07a;">BUFFER -- the buffer.</span>
+<span style="color: #ffa07a;">REGEXP -- the regexp.</span>
+<span style="color: #ffa07a;">BEGIN -- the start of the region to search</span>
+<span style="color: #ffa07a;">END -- the end of the region to search</span>
+<span style="color: #ffa07a;">POST-MATCH -- function to run after each match</span>
+<span style="color: #ffa07a;">POST-MATCH is useful for zero-width matches which will otherwise</span>
+<span style="color: #ffa07a;">cause infinite loop. The buffer is searched forward. POST-MATCH</span>
+<span style="color: #ffa07a;">return can also be used to terminate the matching by returning nil.</span>
+<span style="color: #ffa07a;">WIDEN -- call widen first.</span>
+<span style="color: #ffa07a;">CFS -- Non-nil if searches and matches should ignore case.</span>
+<span style="color: #ffa07a;">NUMERIC -- Non-nil if we should return integers not markers."</span>
+</pre>
+</div>
+
+<p>
+We start by saving everything to ensure that we do not pollute the global
+state. This means match-data, point, narrowing and current buffer! Hopefully
+this is all the global state that exists and that we are changing.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #00ffff;">with-current-buffer</span>
+    buffer
+  (<span style="color: #00ffff;">save-match-data</span>
+    (<span style="color: #00ffff;">save-excursion</span>
+      (<span style="color: #00ffff;">save-restriction</span>
+        (<span style="color: #00ffff;">when</span> widen (widen))
+</pre>
+</div>
+
+<p>
+This let form is doing a number of things. It sets up a dynamic binding for
+`case-fold-search' (which works even though we are using lexical binding),
+ensures a non-nil value for <code>end-bound</code> and defines a sentinal value that
+<code>post-match-return</code> can use to end early.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #00ffff;">let</span> ((rtn nil)
+      (post-match-return t)
+      (end-bound (<span style="color: #00ffff;">or</span> end (point-max)))
+      <span style="color: #ff7f24;">;; </span><span style="color: #ff7f24;">over-ride default if necessary</span>
+      (case-fold-search
+       (<span style="color: #00ffff;">if</span> (eq <span style="color: #b0c4de;">:default</span> cfs)
+           case-fold-search
+         cfs)))
+</pre>
+</div>
+
+<p>
+We start at the beginning. There was no particularly good reason for this, and
+it would have made just as much sense to go backward.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(goto-char
+ (<span style="color: #00ffff;">or</span> begin
+     (point-min)))
+(<span style="color: #00ffff;">while</span>
+    (<span style="color: #00ffff;">and</span>
+</pre>
+</div>
+
+<p>
+The original purpose for <code>post-match-return</code> was for zero-width matches &#x2013;
+these do not advance point beyond their end, so the while loop never
+terminates. Unfortunately, avoiding this depends on the regexp being called,
+so we provide the most general solution of all.
+</p>
+
+<p>
+As well as this, we check the return value of <code>post-match-return</code>, so as well
+as advancing `point' by side-effect, we can also use it to terminate the look
+at any point that we want; for example, we can terminate after the first match
+which feels more efficient than searching the whole buffer then taking the
+first match.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">post-match-return
+<span style="color: #ff7f24;">;; </span><span style="color: #ff7f24;">we need to check we are less than the end-bound</span>
+<span style="color: #ff7f24;">;; </span><span style="color: #ff7f24;">or re-search-forward will break</span>
+(&lt;= (point) end-bound)
+(re-search-forward
+ regexp end-bound
+ t))
+</pre>
+</div>
+
+<p>
+Store the `match-data' in a backward list, run post-match. Finally, reverse
+and terminate.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">  (<span style="color: #00ffff;">setq</span> rtn
+        (cons
+         (<span style="color: #00ffff;">if</span> numeric
+             (m-buffer-marker-to-pos-nil
+              (match-data))
+           (match-data))
+         rtn))
+  (<span style="color: #00ffff;">when</span> post-match
+    (<span style="color: #00ffff;">setq</span> post-match-return (funcall post-match))))
+(reverse rtn)))))))
+</pre>
+</div>
+
+<p>
+This method implements the argument list processing. I find this interface
+fairly attractive to use since it takes the two "main" arguments &#x2013; buffer and
+regexp &#x2013; as positional args optionally, and everything else as keywords. The
+use of keywords is pretty much essential as have eight arguments most of which
+are not essential.
+</p>
+
+<p>
+This is fairly close to the logic provided by `cl-defun' which I wasn't aware
+of when I wrote this. However `cl-defun' does not allow optional arguments
+before keyword arguments &#x2013; all the optional arguments have to be given if we
+are to use keywords.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer--normalize-args</span> (match-with)
+  <span style="color: #ffa07a;">"Manipulate args into a standard form and return as a list.</span>
+<span style="color: #ffa07a;">MATCH-WITH are these args. This is an internal function."</span>
+  (<span style="color: #00ffff;">let*</span> (
+         <span style="color: #ff7f24;">;; </span><span style="color: #ff7f24;">split up into keyword and non keyword limits</span>
+         (args
+          (<span style="color: #00ffff;">-take-while</span>
+           (<span style="color: #00ffff;">lambda</span> (x) (not (keywordp x)))
+           match-with))
+         (pargs
+          (<span style="color: #00ffff;">-drop-while</span>
+           (<span style="color: #00ffff;">lambda</span> (x) (not (keywordp x)))
+           match-with))
+         <span style="color: #ff7f24;">;; </span><span style="color: #ff7f24;">sort actual actual parameters</span>
+         (first (car args))
+         <span style="color: #ff7f24;">;; </span><span style="color: #ff7f24;">buffer may be first</span>
+         (buffer
+          (<span style="color: #00ffff;">or</span> (plist-get pargs <span style="color: #b0c4de;">:buffer</span>)
+              (<span style="color: #00ffff;">and</span> (bufferp first) first)))
+         <span style="color: #ff7f24;">;; </span><span style="color: #ff7f24;">or window may be first</span>
+         (window
+          (<span style="color: #00ffff;">or</span> (plist-get pargs <span style="color: #b0c4de;">:window</span>)
+              (<span style="color: #00ffff;">and</span> (windowp first) first)))
+         <span style="color: #ff7f24;">;; </span><span style="color: #ff7f24;">regexp always comes second</span>
+         (regexp
+          (<span style="color: #00ffff;">or</span> (plist-get pargs <span style="color: #b0c4de;">:regexp</span>)
+              (nth 1 args)))
+         <span style="color: #ff7f24;">;; </span><span style="color: #ff7f24;">begin depends on other arguments</span>
+         (begin
+          (<span style="color: #00ffff;">or</span> (plist-get pargs <span style="color: #b0c4de;">:begin</span>)
+              (<span style="color: #00ffff;">and</span> window (window-start window))))
+         <span style="color: #ff7f24;">;; </span><span style="color: #ff7f24;">end depends on other arguments</span>
+         (end
+          (<span style="color: #00ffff;">or</span> (plist-get pargs <span style="color: #b0c4de;">:end</span>)
+              (<span style="color: #00ffff;">and</span> window (window-end window))))
+         <span style="color: #ff7f24;">;; </span><span style="color: #ff7f24;">pm</span>
+         (post-match
+          (plist-get pargs <span style="color: #b0c4de;">:post-match</span>))
+
+         <span style="color: #ff7f24;">;; </span><span style="color: #ff7f24;">widen</span>
+         (widen
+           (plist-get pargs <span style="color: #b0c4de;">:widen</span>))
+
+         <span style="color: #ff7f24;">;; </span><span style="color: #ff7f24;">case-fold-search this needs to overwrite the buffer contents iff</span>
+         <span style="color: #ff7f24;">;; </span><span style="color: #ff7f24;">set, otherwise be ignored, so we need to distinguish a missing</span>
+         <span style="color: #ff7f24;">;; </span><span style="color: #ff7f24;">property and a nil one</span>
+         (cfs
+          (<span style="color: #00ffff;">if</span> (plist-member pargs <span style="color: #b0c4de;">:case-fold-search</span>)
+              (plist-get pargs <span style="color: #b0c4de;">:case-fold-search</span>)
+            <span style="color: #b0c4de;">:default</span>))
+
+         <span style="color: #ff7f24;">;; </span><span style="color: #ff7f24;">numeric</span>
+         (numeric
+          (plist-get pargs <span style="color: #b0c4de;">:numeric</span>)))
+
+    (list buffer regexp begin end post-match widen cfs numeric)))
+</pre>
+</div>
+
+<p>
+Finally, this function provides a link between the match function, and the
+match manipulation functions. We can either choose to match once against a set
+of arguments and then apply multiple manipulations on the returned match data.
+Or just use the match manipulation function directly.
+</p>
+
+<p>
+The first version of `m-buffer' did not include this but it required lots of
+nested calls which seem inconvenient.
+</p>
+
+<pre class="example">
+(m-buffer-match-manipulate
+  (m-buffer-match (current-buffer) "hello"))
+</pre>
+
+<p>
+I think that convienience is worth the overhead.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-ensure-match</span> (<span style="color: #98fb98;">&amp;rest</span> match)
+  <span style="color: #ffa07a;">"Ensure that we have MATCH data.</span>
+<span style="color: #ffa07a;">If a single arg, assume it is match data and return. If multiple</span>
+<span style="color: #ffa07a;">args, assume they are of the form accepted by</span>
+<span style="color: #ffa07a;">`</span><span style="color: #7fffd4;">m-buffer-match</span><span style="color: #ffa07a;">'."</span>
+  (<span style="color: #00ffff;">cond</span>
+   <span style="color: #ff7f24;">;; </span><span style="color: #ff7f24;">we have match data</span>
+   ((= 1 (length match))
+    (car match))
+   ((&lt; 1 (length match))
+    (apply 'm-buffer-match match))
+   (t
+    (<span style="color: #ffc0cb; font-weight: bold;">error</span> <span style="color: #ffa07a;">"Invalid arguments"</span>))))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-4-2" class="outline-4">
+<h4 id="sec-2-4-2"><span class="section-number-4">2.4.2</span> Match Data Manipulation Functions</h4>
+<div class="outline-text-4" id="text-2-4-2">
+<p>
+These functions manipulate lists of either match-data or match arguments in
+some way.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-buffer-for-match</span> (match-data)
+  <span style="color: #ffa07a;">"Given some MATCH-DATA return the buffer for that data."</span>
+  (marker-buffer (caar match-data)))
+
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-match-nth-group</span> (n match-data)
+  <span style="color: #ffa07a;">"Fetch the Nth group from MATCH-DATA."</span>
+  (<span style="color: #00ffff;">-map</span>
+   (<span style="color: #00ffff;">lambda</span> (m)
+     (<span style="color: #00ffff;">let</span> ((drp
+            (<span style="color: #00ffff;">-drop</span> (* 2 n) m)))
+       (list
+        (car drp) (cadr drp))))
+   match-data))
+
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-match-begin-n</span> (n <span style="color: #98fb98;">&amp;rest</span> match)
+  <span style="color: #ffa07a;">"Return markers to the start of the Nth group in MATCH.</span>
+<span style="color: #ffa07a;">MATCH may be of any form accepted by `</span><span style="color: #7fffd4;">m-buffer-ensure-match</span><span style="color: #ffa07a;">'. Use</span>
+<span style="color: #ffa07a;">`</span><span style="color: #7fffd4;">m-buffer-nil-marker</span><span style="color: #ffa07a;">' after the markers have been finished with</span>
+<span style="color: #ffa07a;">or they will slow future use of the buffer until garbage collected."</span>
+  (<span style="color: #00ffff;">-map</span>
+   (<span style="color: #00ffff;">lambda</span> (m)
+     (nth
+      (* 2 n) m))
+   (apply 'm-buffer-ensure-match match)))
+
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-match-begin-n-pos</span> (n <span style="color: #98fb98;">&amp;rest</span> match)
+  <span style="color: #ffa07a;">"Return positions of the start of the Nth group in MATCH.</span>
+<span style="color: #ffa07a;">MATCH may be of any form accepted by `</span><span style="color: #7fffd4;">m-buffer-ensure-match</span><span style="color: #ffa07a;">'. If</span>
+<span style="color: #ffa07a;">`</span><span style="color: #7fffd4;">match-data</span><span style="color: #ffa07a;">' is passed markers will be set to nil after this</span>
+<span style="color: #ffa07a;">function. See `</span><span style="color: #7fffd4;">m-buffer-nil-marker</span><span style="color: #ffa07a;">' for details."</span>
+  (m-buffer-marker-to-pos-nil
+   (apply 'm-buffer-match-begin-n
+          n match)))
+
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-match-begin</span> (<span style="color: #98fb98;">&amp;rest</span> match)
+  <span style="color: #ffa07a;">"Return a list of markers to the start of MATCH.</span>
+<span style="color: #ffa07a;">MATCH may of any form accepted by `</span><span style="color: #7fffd4;">m-buffer-ensure-match</span><span style="color: #ffa07a;">'. Use</span>
+<span style="color: #ffa07a;">`</span><span style="color: #7fffd4;">m-buffer-nil-marker</span><span style="color: #ffa07a;">' after the markers have been used or they</span>
+<span style="color: #ffa07a;">will slow future changes to the buffer."</span>
+  (apply 'm-buffer-match-begin-n 0 match))
+
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-match-begin-pos</span> (<span style="color: #98fb98;">&amp;rest</span> match)
+  <span style="color: #ffa07a;">"Return a list of positions at the start of matcher.</span>
+<span style="color: #ffa07a;">MATCH may be of any form accepted by `</span><span style="color: #7fffd4;">m-buffer-ensure-match</span><span style="color: #ffa07a;">'.</span>
+<span style="color: #ffa07a;">If `</span><span style="color: #7fffd4;">match-data</span><span style="color: #ffa07a;">' is passed markers will be set to nil after this</span>
+<span style="color: #ffa07a;">function. See `</span><span style="color: #7fffd4;">m-buffer-nil-marker</span><span style="color: #ffa07a;">' for details."</span>
+  (apply 'm-buffer-match-begin-n-pos 0 match))
+
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-match-end-n</span> (n <span style="color: #98fb98;">&amp;rest</span> match)
+  <span style="color: #ffa07a;">"Return markers to the end of the match to the Nth group.</span>
+<span style="color: #ffa07a;">MATCH may be of any form accepted by `</span><span style="color: #7fffd4;">m-buffer-ensure-match</span><span style="color: #ffa07a;">'.</span>
+<span style="color: #ffa07a;">If `</span><span style="color: #7fffd4;">match-data</span><span style="color: #ffa07a;">' is passed markers will be set to nil after this</span>
+<span style="color: #ffa07a;">function. See `</span><span style="color: #7fffd4;">m-buffer-nil-marker</span><span style="color: #ffa07a;">' for details."</span>
+  (<span style="color: #00ffff;">-map</span>
+   (<span style="color: #00ffff;">lambda</span> (m)
+     (nth
+      (+ 1 (* 2 n))
+      m))
+   (apply 'm-buffer-ensure-match match)))
+
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-match-end-n-pos</span> (n <span style="color: #98fb98;">&amp;rest</span> match)
+  <span style="color: #ffa07a;">"Return positions of the end Nth group of MATCH.</span>
+<span style="color: #ffa07a;">MATCH may be of any form accepted by `</span><span style="color: #7fffd4;">m-buffer-ensure-match</span><span style="color: #ffa07a;">'.</span>
+<span style="color: #ffa07a;">If `</span><span style="color: #7fffd4;">match-data</span><span style="color: #ffa07a;">' is passed markers will be set to nil after this</span>
+<span style="color: #ffa07a;">function. See `</span><span style="color: #7fffd4;">m-buffer-nil-marker</span><span style="color: #ffa07a;">' for details."</span>
+  (m-buffer-marker-to-pos-nil
+   (apply 'm-buffer-match-end-n-pos
+          n match)))
+
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-match-end</span> (<span style="color: #98fb98;">&amp;rest</span> match)
+  <span style="color: #ffa07a;">"Return a list of markers to the end of MATCH to regexp in buffer.</span>
+<span style="color: #ffa07a;">MATCH may be of any form accepted by `</span><span style="color: #7fffd4;">m-buffer-ensure-match</span><span style="color: #ffa07a;">'. Use</span>
+<span style="color: #ffa07a;">`</span><span style="color: #7fffd4;">m-buffer-nil-marker</span><span style="color: #ffa07a;">' after the markers have been used or they</span>
+<span style="color: #ffa07a;">will slow future changes to the buffer."</span>
+  (apply 'm-buffer-match-end-n 0 match))
+
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-match-end-pos</span> (<span style="color: #98fb98;">&amp;rest</span> match)
+  <span style="color: #ffa07a;">"Return a list of positions to the end of the match.</span>
+<span style="color: #ffa07a;">MATCH may be of any form accepted by `</span><span style="color: #7fffd4;">m-buffer-ensure-match</span><span style="color: #ffa07a;">'.</span>
+<span style="color: #ffa07a;">If `</span><span style="color: #7fffd4;">match-data</span><span style="color: #ffa07a;">' is passed markers will be set to nil after this</span>
+<span style="color: #ffa07a;">function. See `</span><span style="color: #7fffd4;">m-buffer-nil-marker</span><span style="color: #ffa07a;">' for details."</span>
+  (m-buffer-marker-to-pos-nil
+   (apply 'm-buffer-match-end match)))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-4-3" class="outline-4">
+<h4 id="sec-2-4-3"><span class="section-number-4">2.4.3</span> Match Utility and Predicates</h4>
+<div class="outline-text-4" id="text-2-4-3">
+</div><ol class="org-ol"><li><a id="sec-2-4-3-1" name="sec-2-4-3-1"></a>Subtraction<br  /><div class="outline-text-5" id="text-2-4-3-1">
+<p>
+Some predicates and the ability to subtract to lists of matches from each
+other. This makes up for limitations in Emacs regexp which can't do "match x
+but not y".
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-match-equal</span> (m n)
+  <span style="color: #ffa07a;">"Return true if M and N are cover the same region.</span>
+<span style="color: #ffa07a;">Matches are equal if they match the same region; subgroups are</span>
+<span style="color: #ffa07a;">ignored."</span>
+  (<span style="color: #00ffff;">and</span>
+   (equal
+    (car m)
+    (car n))
+   (equal
+    (cadr m)
+    (cadr n))))
+</pre>
+</div>
+
+<p>
+A nice simple implementation for the general purpose solution.
+Unfortunately, performance sucks, running in quadratic time.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-match-subtract</span> (m n)
+  <span style="color: #ffa07a;">"Remove from M any match in N.</span>
+<span style="color: #ffa07a;">Matches are equivalent if overall they match the same</span>
+<span style="color: #ffa07a;">area; subgroups are ignored.</span>
+<span style="color: #ffa07a;">See also `</span><span style="color: #7fffd4;">m-buffer-match-exact-subtract</span><span style="color: #ffa07a;">' which often</span>
+<span style="color: #ffa07a;">runs faster but has some restrictions."</span>
+  (<span style="color: #00ffff;">-remove</span>
+   (<span style="color: #00ffff;">lambda</span> (o)
+     (<span style="color: #00ffff;">-any?</span>
+      (<span style="color: #00ffff;">lambda</span> (p)
+        (m-buffer-match-equal o p))
+      n))
+   m))
+</pre>
+</div>
+
+<p>
+The ugly and complicated and less general solution. But it runs in linear
+time.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-match-exact-subtract</span> (m n)
+  <span style="color: #ffa07a;">"Remove from M any match in N.</span>
+<span style="color: #ffa07a;">Both M and N must be fully ordered, and any element in N must be</span>
+<span style="color: #ffa07a;">in M."</span>
+  (<span style="color: #00ffff;">if</span> n
+      <span style="color: #ff7f24;">;; </span><span style="color: #ff7f24;">n-eaten contains the remaining elements of n that we haven't tested</span>
+      <span style="color: #ff7f24;">;; </span><span style="color: #ff7f24;">for yet. We throw them away as we go</span>
+      (<span style="color: #00ffff;">let</span> ((n-eaten n))
+        (<span style="color: #00ffff;">-remove</span>
+         (<span style="color: #00ffff;">lambda</span> (o)
+           (<span style="color: #00ffff;">cond</span>
+            <span style="color: #ff7f24;">;; </span><span style="color: #ff7f24;">n-eaten has been eaten. Check here or later "&lt;" comparison crashe</span><span style="color: #ee82ee; background-color: #333333;">s.</span>
+            ((not n-eaten)
+             <span style="color: #ff7f24;">;; </span><span style="color: #ff7f24;">return nil because we always want things in m now.</span>
+             nil
+             )
+            <span style="color: #ff7f24;">;; </span><span style="color: #ff7f24;">we have a match so throw away the first element of n-eaten</span>
+            <span style="color: #ff7f24;">;; </span><span style="color: #ff7f24;">which we won't need again.</span>
+            ((m-buffer-match-equal
+              (car n-eaten) o)
+             (<span style="color: #00ffff;">progn</span>
+               (<span style="color: #00ffff;">setq</span> n-eaten (<span style="color: #00ffff;">-drop</span> 1 n-eaten))
+               t))
+            <span style="color: #ff7f24;">;; </span><span style="color: #ff7f24;">we should discard also if n-eaten 1 is less than o because, both</span>
+            <span style="color: #ff7f24;">;; </span><span style="color: #ff7f24;">are sorted, so we will never match</span>
+            ((&lt;
+              <span style="color: #ff7f24;">;; </span><span style="color: #ff7f24;">first half of the first match in n-eaten</span>
+              (caar n-eaten)
+              <span style="color: #ff7f24;">;; </span><span style="color: #ff7f24;">first half of match</span>
+              (car o))
+             (<span style="color: #00ffff;">progn</span>
+               (<span style="color: #00ffff;">setq</span> n-eaten (<span style="color: #00ffff;">-drop</span> 1 n-eaten))
+               t))))
+         m))
+    m))
+
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-in-match-p</span> (matches position)
+  <span style="color: #ffa07a;">"Returns true is any of MATCHES contain POSITION."</span>
+  (<span style="color: #00ffff;">-any?</span>
+   (<span style="color: #00ffff;">lambda</span> (match)
+     (<span style="color: #00ffff;">and</span>
+      (&lt;= (car match) position)
+      (&lt;= position (cadr match))))
+   matches))
+</pre>
+</div>
+</div>
+</li>
+
+
+<li><a id="sec-2-4-3-2" name="sec-2-4-3-2"></a>Partition<br  /><div class="outline-text-5" id="text-2-4-3-2">
+<p>
+Partition one set of markers by another. This is useful for finding matched
+pairs of markers.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer--split-partition</span> (partition)
+  (<span style="color: #00ffff;">let</span> ((current nil))
+    (<span style="color: #00ffff;">lambda</span> (n)
+      (<span style="color: #00ffff;">when</span>
+          (<span style="color: #00ffff;">and</span> partition
+               (&lt;= (car partition) n))
+        (<span style="color: #00ffff;">setq</span> current (car partition))
+        (<span style="color: #00ffff;">setq</span> partition (<span style="color: #00ffff;">-drop</span> 1 partition)))
+      current)))
+
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-partition-by-marker</span> (list partition)
+  <span style="color: #ffa07a;">"Given LIST of markers, split at markers in PARTITION.</span>
+<span style="color: #ffa07a;">Returns a list of lists. The first element of each list is nil or</span>
+<span style="color: #ffa07a;">the marker from PARTITION. The rest of the elements are those</span>
+<span style="color: #ffa07a;">elements in LIST which are at the same position or later in the</span>
+<span style="color: #ffa07a;">buffer than the element from PARTITION, but before the next</span>
+<span style="color: #ffa07a;">element from PARTITION.</span>
+
+<span style="color: #ffa07a;">Both LIST and PARTITION must be sorted."</span>
+  (<span style="color: #00ffff;">-group-by</span> (m-buffer--split-partition partition) list))
+</pre>
+</div>
+</div>
+</li></ol>
+</div>
+
+
+<div id="outline-container-sec-2-4-4" class="outline-4">
+<h4 id="sec-2-4-4"><span class="section-number-4">2.4.4</span> Marker manipulation functions</h4>
+<div class="outline-text-4" id="text-2-4-4">
+<p>
+These functions do things to markers rather than the areas of the buffers
+indicated by the markers. This includes transforming between markers and
+integer positions, and niling markers explicitly, which prevents slow down
+before garbage collection.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-nil-marker</span> (markers)
+  <span style="color: #ffa07a;">"Takes a (nested) list of MARKERS and nils them all.</span>
+<span style="color: #ffa07a;">Markers slow buffer movement while they are pointing at a</span>
+<span style="color: #ffa07a;">specific location, until they have been garbage collected. Niling</span>
+<span style="color: #ffa07a;">them prevents this. See Info node `(elisp) Overview of Markers'."</span>
+  (<span style="color: #00ffff;">-map</span>
+   (<span style="color: #00ffff;">lambda</span> (marker)
+     (set-marker marker nil))
+   (<span style="color: #00ffff;">-flatten</span> markers)))
+
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-marker-to-pos</span> (markers <span style="color: #98fb98;">&amp;optional</span> postnil)
+  <span style="color: #ffa07a;">"Transforms a list of MARKERS to a list of positions.</span>
+<span style="color: #ffa07a;">If the markers are no longer needed, set POSTNIL to true, or call</span>
+<span style="color: #ffa07a;">`</span><span style="color: #7fffd4;">m-buffer-nil-marker</span><span style="color: #ffa07a;">' manually after use to speed future buffer</span>
+<span style="color: #ffa07a;">movement. Or use `</span><span style="color: #7fffd4;">m-buffer-marker-to-pos-nil</span><span style="color: #ffa07a;">'."</span>
+  (<span style="color: #00ffff;">-map</span>
+   (<span style="color: #00ffff;">lambda</span> (marker)
+     (<span style="color: #00ffff;">prog1</span>
+         (marker-position marker)
+       (<span style="color: #00ffff;">when</span> postnil
+         (set-marker marker nil))))
+   markers))
+
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-marker-to-pos-nil</span> (markers)
+  <span style="color: #ffa07a;">"Transforms a list of MARKERS to a list of positions then nils.</span>
+<span style="color: #ffa07a;">See also `</span><span style="color: #7fffd4;">m-buffer-nil-markers</span><span style="color: #ffa07a;">'"</span>
+  (m-buffer-marker-to-pos markers t))
+
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-marker-tree-to-pos</span> (marker-tree <span style="color: #98fb98;">&amp;optional</span> postnil)
+  <span style="color: #ffa07a;">"Transforms a tree of markers to equivalent positions.</span>
+<span style="color: #ffa07a;">MARKER-TREE is the tree.</span>
+<span style="color: #ffa07a;">POSTNIL sets markers to nil afterwards."</span>
+  (<span style="color: #00ffff;">-tree-map</span>
+   (<span style="color: #00ffff;">lambda</span> (marker)
+     (<span style="color: #00ffff;">prog1</span>
+         (marker-position marker)
+       (<span style="color: #00ffff;">when</span> postnil
+         (set-marker marker nil))))
+   marker-tree))
+
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-marker-tree-to-pos-nil</span> (marker-tree)
+  <span style="color: #ffa07a;">"Transforms a tree of markers to equivalent positions.</span>
+<span style="color: #ffa07a;">MARKER-TREE is the tree. Markers are niled afterwards."</span>
+  (m-buffer-marker-tree-to-pos marker-tree t))
+
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-marker-clone</span> (marker-tree <span style="color: #98fb98;">&amp;optional</span> type)
+  <span style="color: #ffa07a;">"Return a clone of MARKER-TREE.</span>
+<span style="color: #ffa07a;">The optional argument TYPE specifies the insertion type. See</span>
+<span style="color: #ffa07a;">`</span><span style="color: #7fffd4;">copy-marker</span><span style="color: #ffa07a;">' for details."</span>
+  (<span style="color: #00ffff;">-tree-map</span>
+   (<span style="color: #00ffff;">lambda</span> (marker)
+     (copy-marker marker type))
+   marker-tree))
+
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-pos-to-marker</span> (buffer positions)
+  <span style="color: #ffa07a;">"In BUFFER translates a list of POSITIONS to markers."</span>
+  (<span style="color: #00ffff;">-map</span>
+   (<span style="color: #00ffff;">lambda</span> (pos)
+     (set-marker
+      (make-marker) pos buffer))
+   positions))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-4-5" class="outline-4">
+<h4 id="sec-2-4-5"><span class="section-number-4">2.4.5</span> Replace, Delete, Extract</h4>
+<div class="outline-text-4" id="text-2-4-5">
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-replace-match</span> (match-data replacement
+                                          <span style="color: #98fb98;">&amp;optional</span> fixedcase literal subexp)
+  <span style="color: #ffa07a;">"Given a list of MATCH-DATA, replace with REPLACEMENT.</span>
+<span style="color: #ffa07a;">If FIXEDCASE do not alter the case of the replacement text.</span>
+<span style="color: #ffa07a;">If LITERAL insert the replacement literally.</span>
+<span style="color: #ffa07a;">SUBEXP should be a number indicating the regexp group to replace.</span>
+<span style="color: #ffa07a;">Returns markers to the start and end of the replacement. These</span>
+<span style="color: #ffa07a;">markers are part of MATCH-DATA, so niling them will percolate backward.</span>
+
+<span style="color: #ffa07a;">See also `</span><span style="color: #7fffd4;">replace-match</span><span style="color: #ffa07a;">'."</span>
+  (<span style="color: #00ffff;">save-excursion</span>
+    (<span style="color: #00ffff;">-map</span>
+     (<span style="color: #00ffff;">lambda</span> (match)
+       (<span style="color: #00ffff;">with-current-buffer</span>
+           (marker-buffer (car match))
+         (<span style="color: #00ffff;">save-match-data</span>
+           (set-match-data match)
+           (replace-match
+            replacement fixedcase literal nil
+            (<span style="color: #00ffff;">or</span> subexp 0)))))
+     match-data))
+  <span style="color: #ff7f24;">;; </span><span style="color: #ff7f24;">we have match-data</span>
+  (m-buffer-match-nth-group (<span style="color: #00ffff;">or</span> subexp 0) match-data))
+
+
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-delete-match</span> (match-data <span style="color: #98fb98;">&amp;optional</span> subexp)
+  <span style="color: #ffa07a;">"Delete all MATCH-DATA.</span>
+<span style="color: #ffa07a;">SUBEXP should be a number indicating the regexp group to delete.</span>
+<span style="color: #ffa07a;">Returns markers to the start and end of the replacement. These</span>
+<span style="color: #ffa07a;">markers are part of MATCH_DATA, so niling them will percolate backward."</span>
+  (m-buffer-replace-match match-data <span style="color: #ffa07a;">""</span> subexp))
+
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-match-string</span> (match-data <span style="color: #98fb98;">&amp;optional</span> subexp)
+  <span style="color: #ffa07a;">"Return strings for MATCH-DATA optionally of group SUBEXP."</span>
+  (<span style="color: #00ffff;">-map</span>
+   (<span style="color: #00ffff;">lambda</span> (match)
+     (<span style="color: #00ffff;">with-current-buffer</span>
+         (marker-buffer (car match))
+       (<span style="color: #00ffff;">save-match-data</span>
+         (set-match-data match)
+         (match-string
+          (<span style="color: #00ffff;">or</span> subexp 0)))))
+   match-data))
+
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-match-string-no-properties</span> (match-data <span style="color: #98fb98;">&amp;optional</span> subexp)
+  <span style="color: #ffa07a;">"Return strings for MATCH-DATA optionally of group SUBEXP.</span>
+<span style="color: #ffa07a;">Remove all properties from return."</span>
+  (<span style="color: #00ffff;">-map</span>
+   'substring-no-properties
+   (m-buffer-match-string
+    match-data subexp)))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-4-6" class="outline-4">
+<h4 id="sec-2-4-6"><span class="section-number-4">2.4.6</span> Match Things</h4>
+<div class="outline-text-4" id="text-2-4-6">
+<p>
+Emacs comes with a set of in-built regexps most of which we use here.
+</p>
+
+<p>
+We define `m-buffer-apply-join' first. The reason for this function is that
+we want to take a list of match arguments and add to with, for instance, a
+regular expression. We need to add these at the end because most of our
+functions contain some positional arguments.
+</p>
+
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-apply-join</span> (fn match <span style="color: #98fb98;">&amp;rest</span> more-match)
+  (<span style="color: #00ffff;">let*</span>
+      ((args
+        (<span style="color: #00ffff;">-take-while</span>
+         (<span style="color: #00ffff;">lambda</span> (x) (not (keywordp x)))
+         match))
+       (pargs
+        (<span style="color: #00ffff;">-drop-while</span>
+         (<span style="color: #00ffff;">lambda</span> (x) (not (keywordp x)))
+         match))
+       (more-keywords
+        (<span style="color: #00ffff;">-map</span>
+         'car
+         (<span style="color: #00ffff;">-partition</span> 2 more-match))))
+    (<span style="color: #00ffff;">when</span>
+        (<span style="color: #00ffff;">-first</span>
+         (<span style="color: #00ffff;">lambda</span> (keyword)
+           (plist-member pargs keyword))
+         more-keywords)
+      (<span style="color: #ffc0cb; font-weight: bold;">error</span>
+       <span style="color: #ffa07a;">"Match arg contradicts a defined argument."</span>))
+    (apply fn (append args more-match pargs))))
+</pre>
+</div>
+
+<p>
+For the following code, we use Emacs core regexps where possible.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-match-page</span> (<span style="color: #98fb98;">&amp;rest</span> match)
+  <span style="color: #ffa07a;">"Return a list of match data to all pages in MATCH.</span>
+<span style="color: #ffa07a;">MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS.  See</span>
+<span style="color: #ffa07a;">`</span><span style="color: #7fffd4;">m-buffer-match</span><span style="color: #ffa07a;">' for further details."</span>
+  (m-buffer-apply-join 'm-buffer-match
+                       match <span style="color: #b0c4de;">:regexp</span> page-delimiter))
+</pre>
+</div>
+
+<p>
+The `paragraph-separate' regexp can match an empty region, so we need to start
+each search at the beginning of the next line.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-match-paragraph-separate</span> (<span style="color: #98fb98;">&amp;rest</span> match)
+  <span style="color: #ffa07a;">"Return a list of match data to `</span><span style="color: #7fffd4;">paragraph-separate</span><span style="color: #ffa07a;">' in MATCH.</span>
+<span style="color: #ffa07a;">MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS.  See</span>
+<span style="color: #ffa07a;">`</span><span style="color: #7fffd4;">m-buffer-match</span><span style="color: #ffa07a;">' for futher details."</span>
+  (m-buffer-apply-join
+   'm-buffer-match match <span style="color: #b0c4de;">:regexp</span> paragraph-separate
+   <span style="color: #b0c4de;">:post-match</span> 'm-buffer-post-match-forward-line))
+
+(<span style="color: #00ffff;">defvar</span> <span style="color: #eedd82;">m-buffer--line-regexp</span>
+  <span style="color: #ffa07a;">"^.*$"</span>
+  <span style="color: #ffa07a;">"Regexp to match a line."</span>)
+
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-match-line</span> (<span style="color: #98fb98;">&amp;rest</span> match)
+  <span style="color: #ffa07a;">"Return a list of match data to all lines.</span>
+<span style="color: #ffa07a;">MATCH is of the form BUFFER-OR-WINDOW MATCH-OPTIONS.</span>
+<span style="color: #ffa07a;">See `m-buffer-match for further details."</span>
+  (m-buffer-apply-join
+   'm-buffer-match
+   match <span style="color: #b0c4de;">:regexp</span> m-buffer--line-regexp
+   <span style="color: #b0c4de;">:post-match</span> 'm-buffer-post-match-forward-char))
+
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-match-line-start</span> (<span style="color: #98fb98;">&amp;rest</span> match)
+  <span style="color: #ffa07a;">"Return a list of match data to all line start.</span>
+<span style="color: #ffa07a;">MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS.  See</span>
+<span style="color: #ffa07a;">`</span><span style="color: #7fffd4;">m-buffer-match</span><span style="color: #ffa07a;">' for further details."</span>
+  (m-buffer-apply-join
+   'm-buffer-match-begin
+   match <span style="color: #b0c4de;">:regexp</span>  <span style="color: #ffa07a;">"^"</span>
+   <span style="color: #b0c4de;">:post-match</span> 'm-buffer-post-match-forward-char))
+
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-match-line-end</span> (<span style="color: #98fb98;">&amp;rest</span> match)
+  <span style="color: #ffa07a;">"Return a list of match to line end.</span>
+<span style="color: #ffa07a;">MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS.  See</span>
+<span style="color: #ffa07a;">`</span><span style="color: #7fffd4;">m-buffer-match</span><span style="color: #ffa07a;">' for further details."</span>
+  (m-buffer-apply-join
+   'm-buffer-match-begin
+   match <span style="color: #b0c4de;">:regexp</span> <span style="color: #ffa07a;">"$"</span>
+   <span style="color: #b0c4de;">:post-match</span> 'm-buffer-post-match-forward-char))
+</pre>
+</div>
+
+<p>
+This is the first use of the <code>post-match</code> to terminate the loop, and was
+actually the motivation for adding it. We automatically terminate after the
+first match by simply returning nil.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-match-first-line</span> (<span style="color: #98fb98;">&amp;rest</span> match)
+  <span style="color: #ffa07a;">"Return a match to the first line of MATCH.</span>
+<span style="color: #ffa07a;">This matches more efficiently than matching all lines and taking</span>
+<span style="color: #ffa07a;">the car.  See `</span><span style="color: #7fffd4;">m-buffer-match</span><span style="color: #ffa07a;">' for further details of MATCH."</span>
+  (m-buffer-apply-join
+   'm-buffer-match match
+   <span style="color: #b0c4de;">:regexp</span> m-buffer--line-regexp
+   <span style="color: #b0c4de;">:post-match</span> (<span style="color: #00ffff;">lambda</span> () nil)))
+</pre>
+</div>
+
+<p>
+Emacs has a rather inconsistent interface here &#x2013; suddenly, we have a function
+rather than a variable for accessing a regexp.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-match-sentence-end</span> (<span style="color: #98fb98;">&amp;rest</span> match)
+  <span style="color: #ffa07a;">"Return a list of match to sentence end.</span>
+<span style="color: #ffa07a;">MATCH is of the form BUFFER-OR-WINDOW MATCH-OPTIONS.  See</span>
+<span style="color: #ffa07a;">`</span><span style="color: #7fffd4;">m-buffer-match</span><span style="color: #ffa07a;">' for further details."</span>
+  (m-buffer-apply-join
+   'm-buffer-match-begin
+   match <span style="color: #b0c4de;">:regexp</span> (sentence-end)))
+
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-match-word</span> (<span style="color: #98fb98;">&amp;rest</span> match)
+  <span style="color: #ffa07a;">"Return a list of match to all words.</span>
+<span style="color: #ffa07a;">MATCH is of the form BUFFER-OR-WINDOW MATCH-OPTIONS.  See</span>
+<span style="color: #ffa07a;">`</span><span style="color: #7fffd4;">m-buffer-match</span><span style="color: #ffa07a;">' for further details."</span>
+  (m-buffer-apply-join
+   'm-buffer-match
+   match <span style="color: #b0c4de;">:regexp</span> <span style="color: #ffa07a;">"\\\w+"</span>))
+
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-match-empty-line</span> (<span style="color: #98fb98;">&amp;rest</span> match)
+  <span style="color: #ffa07a;">"Return a list of match to all empty lines.</span>
+<span style="color: #ffa07a;">MATCH is of the form BUFFER-OR-WINDOW MATCH-OPTIONS.  See</span>
+<span style="color: #ffa07a;">`</span><span style="color: #7fffd4;">m-buffer-match</span><span style="color: #ffa07a;">' for further details."</span>
+  (m-buffer-apply-join
+   'm-buffer-match
+   match <span style="color: #b0c4de;">:regexp</span> <span style="color: #ffa07a;">"^$"</span>
+   <span style="color: #b0c4de;">:post-match</span> 'm-buffer-post-match-forward-line))
+
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-match-non-empty-line</span> (<span style="color: #98fb98;">&amp;rest</span> match)
+  <span style="color: #ffa07a;">"Return a list of match to all non-empty lines.</span>
+<span style="color: #ffa07a;">MATCH is fo the form BUFFER-OR-WINDOW MATCH-OPTIONS. See</span>
+<span style="color: #ffa07a;">`</span><span style="color: #7fffd4;">m-buffer-match</span><span style="color: #ffa07a;">' for further details."</span>
+  (m-buffer-apply-join
+   'm-buffer-match
+   match <span style="color: #b0c4de;">:regexp</span> <span style="color: #ffa07a;">"^.+$"</span>))
+
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-match-whitespace-line</span> (<span style="color: #98fb98;">&amp;rest</span> match)
+  <span style="color: #ffa07a;">"Return match data to all lines with only whitespace characters.</span>
+<span style="color: #ffa07a;">Note empty lines are not included. MATCH is of form</span>
+<span style="color: #ffa07a;">BUFFER-OR-WINDOW MATCH-OPTIONS. See `</span><span style="color: #7fffd4;">m-buffer-match</span><span style="color: #ffa07a;">' for</span>
+<span style="color: #ffa07a;">further details."</span>
+  (m-buffer-apply-join
+   'm-buffer-match
+   match <span style="color: #b0c4de;">:regexp</span> <span style="color: #ffa07a;">"^\\s-+$"</span>))
+</pre>
+</div>
+
+<p>
+I don't think that there is a way to do this with regexps entirely, so we use
+substraction.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-match-non-whitespace-line</span> (<span style="color: #98fb98;">&amp;rest</span> match)
+  <span style="color: #ffa07a;">"Return match data to all lines with at least one non-whitespace character.</span>
+<span style="color: #ffa07a;">Note empty lines do not contain any non-whitespace lines.</span>
+<span style="color: #ffa07a;">MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS. See</span>
+<span style="color: #ffa07a;">`</span><span style="color: #7fffd4;">m-buffer-match</span><span style="color: #ffa07a;">' for further details."</span>
+  (<span style="color: #00ffff;">-difference</span>
+   (apply 'm-buffer-match-line match)
+   (apply 'm-buffer-match-whitespace-line match)))
+
+<span style="color: #ff7f24;">;; </span><span style="color: #ff7f24;">Useful post-match functions</span>
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-post-match-forward-line</span> ()
+  <span style="color: #ffa07a;">"Attempt to move forward one line, return true if success."</span>
+  (= 0 (forward-line)))
+
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-post-match-forward-char</span> ()
+  <span style="color: #ffa07a;">"Attempts to move forward one char.</span>
+<span style="color: #ffa07a;">Returns true if succeeds."</span>
+  (<span style="color: #00ffff;">condition-case</span> _e
+      (<span style="color: #00ffff;">progn</span>
+        (forward-char)
+        t)
+    (<span style="color: #ffc0cb; font-weight: bold;">error</span> 'end-of-buffer
+           nil)))
+</pre>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-sec-2-4-7" class="outline-4">
+<h4 id="sec-2-4-7"><span class="section-number-4">2.4.7</span> Apply Function to Match</h4>
+<div class="outline-text-4" id="text-2-4-7">
+<p>
+These functions apply another function to some match-data. This is pretty
+useful generically, but also I use it for many of the following functions.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-on-region</span> (fn match-data)
+  <span style="color: #ffa07a;">"Apply FN to MATCH-DATA.</span>
+<span style="color: #ffa07a;">FN should take two args, the start and stop of each region.</span>
+<span style="color: #ffa07a;">MATCH-DATA can be any list of lists with two elements (or more)."</span>
+  (m-buffer-on-region-nth-group fn 0 match-data))
+
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-on-region-nth-group</span> (fn n match-data)
+  <span style="color: #ffa07a;">"Apply FN to the Nth group of MATCH-DATA.</span>
+<span style="color: #ffa07a;">FN should take two args, the start and stop of each region.</span>
+<span style="color: #ffa07a;">MATCH-DATA can be any list of lists with two elements (or more)."</span>
+  (<span style="color: #00ffff;">-map</span>
+   (<span style="color: #00ffff;">lambda</span> (x)
+     (apply fn x))
+   (m-buffer-match-nth-group n match-data)))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-4-8" class="outline-4">
+<h4 id="sec-2-4-8"><span class="section-number-4">2.4.8</span> Overlay and Property Functions</h4>
+<div class="outline-text-4" id="text-2-4-8">
+<p>
+Adding properties or overlays to match-data. The functionality here somewhat
+overlaps with <a href="https://github.com/ShingoFukuyama/ov.el">ov.el</a>, which I didn't know about when I wrote this. It generally
+works over overlays, or regexps, while m-buffer works over match-data.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-overlay-match</span> (match-data <span style="color: #98fb98;">&amp;optional</span> front-advance rear-advance)
+  <span style="color: #ffa07a;">"Return an overlay for all match to MATCH-DATA.</span>
+<span style="color: #ffa07a;">FRONT-ADVANCE and REAR-ADVANCE controls the borders of the</span>
+<span style="color: #ffa07a;">overlay as defined in `</span><span style="color: #7fffd4;">make-overlay</span><span style="color: #ffa07a;">'.  Overlays do not scale that</span>
+<span style="color: #ffa07a;">well, so use `</span><span style="color: #7fffd4;">m-buffer-propertize-match</span><span style="color: #ffa07a;">' if you intend to make</span>
+<span style="color: #ffa07a;">and keep many of these.</span>
+
+<span style="color: #ffa07a;">See Info node `(elisp) Overlays' for further information."</span>
+  (<span style="color: #00ffff;">let</span> ((buffer (m-buffer-buffer-for-match match-data)))
+    (m-buffer-on-region
+     (<span style="color: #00ffff;">lambda</span> (beginning end)
+       (make-overlay
+        beginning end buffer
+        front-advance rear-advance))
+     match-data)))
+
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-add-text-property-match</span>
+  (match-data properties)
+  <span style="color: #ffa07a;">"To MATCH-DATA add PROPERTIES.</span>
+<span style="color: #ffa07a;">See `</span><span style="color: #7fffd4;">add-text-property</span><span style="color: #ffa07a;">' for details of the format of properties.</span>
+<span style="color: #ffa07a;">Text properties are associated with the text and move with it. See</span>
+<span style="color: #ffa07a;">Info node `(elisp) Text Properties' for further details."</span>
+  (m-buffer-on-region
+   (<span style="color: #00ffff;">lambda</span> (beginning end)
+     (add-text-properties beginning end properties))
+   match-data))
+
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-put-text-property-match</span> (match-data property value)
+  <span style="color: #ffa07a;">"To MATCH-DATA add PROPERTY wth VALUE.</span>
+<span style="color: #ffa07a;">See `</span><span style="color: #7fffd4;">put-text-property</span><span style="color: #ffa07a;">' for details of the format of properties.</span>
+<span style="color: #ffa07a;">Text properties are associated with the text and move with it. See</span>
+<span style="color: #ffa07a;">Info node `(elisp) Text Properties' for further details."</span>
+  (m-buffer-on-region
+   (<span style="color: #00ffff;">lambda</span> (beginning end)
+     (put-text-property beginning end property value))
+   match-data))
+
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-overlay-face-match</span> (match-data face)
+  <span style="color: #ffa07a;">"To MATCH-DATA add FACE to the face property.</span>
+<span style="color: #ffa07a;">This is for use in buffers which do not have function `</span><span style="color: #7fffd4;">font-lock-mode</span><span style="color: #ffa07a;">'</span>
+<span style="color: #ffa07a;">enabled; otherwise use `</span><span style="color: #7fffd4;">m-buffer-overlay-font-lock-face-match</span><span style="color: #ffa07a;">'."</span>
+  (<span style="color: #00ffff;">-map</span>
+   (<span style="color: #00ffff;">lambda</span> (ovly)
+     (overlay-put ovly 'face face))
+   (m-buffer-overlay-match match-data)))
+
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-overlay-font-lock-face-match</span> (match-data face)
+  <span style="color: #ffa07a;">"To MATCH-DATA add FACE to the face property.</span>
+<span style="color: #ffa07a;">This is for use in buffers which have variable `</span><span style="color: #7fffd4;">font-lock-mode</span><span style="color: #ffa07a;">' enabled;</span>
+<span style="color: #ffa07a;">otherwise use `</span><span style="color: #7fffd4;">m-buffer-overlay-face-match</span><span style="color: #ffa07a;">'."</span>
+  (<span style="color: #00ffff;">-map</span>
+   (<span style="color: #00ffff;">lambda</span> (ovly)
+     (overlay-put ovly 'face face))
+   (m-buffer-overlay-match match-data)))
+
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-text-property-face</span> (match-data face)
+  <span style="color: #ffa07a;">"To MATCH-DATA apply FACE.</span>
+<span style="color: #ffa07a;">This is for use in buffers which do</span>
+<span style="color: #ffa07a;">not have variable `</span><span style="color: #7fffd4;">font-lock-mode</span><span style="color: #ffa07a;">' enabled; otherwise use</span>
+<span style="color: #ffa07a;">`</span><span style="color: #7fffd4;">m-buffer-text-property-font-lock-face</span><span style="color: #ffa07a;">'."</span>
+  (m-buffer-put-text-property-match match-data
+   'face face))
+
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-text-property-font-lock-face</span> (match-data face)
+  <span style="color: #ffa07a;">"To MATCH-DATA apply FACE.</span>
+<span style="color: #ffa07a;">This is for use in buffers which have variable `</span><span style="color: #7fffd4;">font-lock-mode</span><span style="color: #ffa07a;">'</span>
+<span style="color: #ffa07a;">enabled; otherwise use `</span><span style="color: #7fffd4;">m-buffer-text-property-face</span><span style="color: #ffa07a;">'."</span>
+  (m-buffer-put-text-property-match match-data
+   'font-lock-face face))
+
+(<span style="color: #00ffff;">provide</span> '<span style="color: #7fffd4;">m-buffer</span>)
+
+
+<span style="color: #ff7f24;">;;; </span><span style="color: #ff7f24;">m-buffer.el ends here</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3"><span class="section-number-2">3</span> m-buffer-at</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+m-buffer-at.el provides a set of stateless functions which for accessing data
+about buffers, without requiring changing the `current-buffer'.
+</p>
+</div>
+
+<div id="outline-container-sec-3-1" class="outline-3">
+<h3 id="sec-3-1"><span class="section-number-3">3.1</span> Header</h3>
+<div class="outline-text-3" id="text-3-1">
+<p>
+This file is not part of Emacs
+</p>
+
+<p>
+The contents of this file are subject to the GPL License, Version 3.0.
+</p>
+
+<p>
+Copyright (C) 2014, Phillip Lord, Newcastle University
+</p>
+
+<p>
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+</p>
+
+<p>
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+</p>
+
+<p>
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-3-2" class="outline-3">
+<h3 id="sec-3-2"><span class="section-number-3">3.2</span> Commentary</h3>
+<div class="outline-text-3" id="text-3-2">
+<p>
+Provides stateless equivalents to many core Emacs functions, that provide
+information about a buffer. Most of these functions take either a buffer as
+a parameter or a location, which is either a marker (with a non-nil buffer
+and location) or a buffer and integer.
+</p>
+
+<p>
+These functions are generally competitive with the originals in terms of
+speed.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-3-3" class="outline-3">
+<h3 id="sec-3-3"><span class="section-number-3">3.3</span> Status</h3>
+<div class="outline-text-3" id="text-3-3">
+<p>
+There are lots more to do, but the interface should be stable.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-3-4" class="outline-3">
+<h3 id="sec-3-4"><span class="section-number-3">3.4</span> Code</h3>
+<div class="outline-text-3" id="text-3-4">
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #00ffff;">require</span> '<span style="color: #7fffd4;">m-buffer-macro</span>)
+
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-at-point</span> (buffer)
+  <span style="color: #ffa07a;">"Return the location of point in BUFFER.</span>
+<span style="color: #ffa07a;">See also `</span><span style="color: #7fffd4;">point</span><span style="color: #ffa07a;">'."</span>
+  (<span style="color: #00ffff;">with-current-buffer</span>
+      buffer
+    (point)))
+
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-at-eolp</span> (<span style="color: #98fb98;">&amp;rest</span> location)
+  <span style="color: #ffa07a;">"Return t if LOCATION is at the end of a line.</span>
+<span style="color: #ffa07a;">See also `</span><span style="color: #7fffd4;">eolp</span><span style="color: #ffa07a;">'."</span>
+  (<span style="color: #00ffff;">m-buffer-with-current-location</span>
+      location
+    (eolp)))
+
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-at-bolp</span> (<span style="color: #98fb98;">&amp;rest</span> location)
+  <span style="color: #ffa07a;">"Return t if LOCATION is at the begining of a line.</span>
+<span style="color: #ffa07a;">See also `</span><span style="color: #7fffd4;">bolp</span><span style="color: #ffa07a;">'"</span>
+  (<span style="color: #00ffff;">m-buffer-with-current-location</span>
+      location
+    (bolp)))
+
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-at-line-beginning-position</span> (<span style="color: #98fb98;">&amp;rest</span> location)
+  <span style="color: #ffa07a;">"Return the start of the line of LOCATION."</span>
+  (<span style="color: #00ffff;">m-buffer-with-current-location</span>
+      location
+    (line-beginning-position)))
+
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-at-line-end-position</span> (<span style="color: #98fb98;">&amp;rest</span> location)
+  <span style="color: #ffa07a;">"Return the end of the line of LOCATION."</span>
+  (<span style="color: #00ffff;">m-buffer-with-current-location</span>
+      location
+    (line-end-position)))
+
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-at-narrowed-p</span> (buffer)
+  (<span style="color: #00ffff;">with-current-buffer</span>
+      buffer
+    (buffer-narrowed-p)))
+
+(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">m-buffer-at-string</span> (buffer)
+  (<span style="color: #00ffff;">with-current-buffer</span>
+      buffer
+    (buffer-string)))
+
+(<span style="color: #00ffff;">provide</span> '<span style="color: #7fffd4;">m-buffer-at</span>)
+<span style="color: #ff7f24;">;;; </span><span style="color: #ff7f24;">m-buffer-at.el ends here</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-sec-4" class="outline-2">
+<h2 id="sec-4"><span class="section-number-2">4</span> m-buffer-macro</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+m-buffer-macro.el provides some general purpose macros for:
+</p>
+
+<ul class="org-ul">
+<li>dealing with markers and their cleanup
+</li>
+<li>running code at a specific location
+</li>
+</ul>
+</div>
+
+<div id="outline-container-sec-4-1" class="outline-3">
+<h3 id="sec-4-1"><span class="section-number-3">4.1</span> Header</h3>
+<div class="outline-text-3" id="text-4-1">
+<p>
+This file is not part of Emacs
+</p>
+
+<p>
+The contents of this file are subject to the GPL License, Version 3.0.
+</p>
+
+<p>
+Copyright (C) 2014, Phillip Lord, Newcastle University
+</p>
+
+<p>
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+</p>
+
+<p>
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+</p>
+
+<p>
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-4-2" class="outline-3">
+<h3 id="sec-4-2"><span class="section-number-3">4.2</span> Commentary</h3>
+<div class="outline-text-3" id="text-4-2">
+<p>
+This file provides some utility macros which help to support stateless
+operation on buffers, by restoring global state after to what it was before
+the macro starts.
+</p>
+
+<p>
+These macros are quite useful, but with the exception of
+`m-buffer-with-markers', they are mostly meant to underpin `m-buffer-at'. The
+aim is that all the cases where one of these macros is used with a single form
+from core Emacs should be provided by m-buffer-at (although this is not the
+case yet). These macros might be more efficient if there are a lot of calls to
+group together.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-4-3" class="outline-3">
+<h3 id="sec-4-3"><span class="section-number-3">4.3</span> Code</h3>
+<div class="outline-text-3" id="text-4-3">
+</div><div id="outline-container-sec-4-3-1" class="outline-4">
+<h4 id="sec-4-3-1"><span class="section-number-4">4.3.1</span> Markers</h4>
+<div class="outline-text-4" id="text-4-3-1">
+<p>
+Markers are generally much nicer than integers, but needs cleaning up
+afterwards if a lot are created. It's possible to do this using
+`m-buffer-nil-marker', but it can be a bit painful. This form looks like a
+`let' form, but removes markers at the end.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #00ffff;">defmacro</span> <span style="color: #87cefa;">m-buffer-with-markers</span> (varlist <span style="color: #98fb98;">&amp;rest</span> body)
+  <span style="color: #ffa07a;">"Bind variables after VARLIST then eval BODY.</span>
+<span style="color: #ffa07a;">VARLIST is of the same form as `</span><span style="color: #7fffd4;">let</span><span style="color: #ffa07a;">'. All variables should</span>
+<span style="color: #ffa07a;">contain markers or collections of markers. All markers are niled</span>
+<span style="color: #ffa07a;">after BODY."</span>
+  <span style="color: #ff7f24;">;; </span><span style="color: #ff7f24;">indent let part specially, and debug like let</span>
+  (<span style="color: #00ffff;">declare</span> (indent 1)(debug let))
+  <span style="color: #ff7f24;">;; </span><span style="color: #ff7f24;">so, create a rtn var with make-symbol (for hygene)</span>
+  (<span style="color: #00ffff;">let*</span> ((rtn-var (make-symbol <span style="color: #ffa07a;">"rtn-var"</span>))
+         (marker-vars
+          (mapcar 'car varlist))
+         (full-varlist
+          (append
+           varlist
+           `((,rtn-var
+              (<span style="color: #00ffff;">progn</span>
+                ,@body))))))
+    `(<span style="color: #00ffff;">let*</span> ,full-varlist
+       (m-buffer-nil-marker
+        (list ,@marker-vars))
+       ,rtn-var)))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-4-3-2" class="outline-4">
+<h4 id="sec-4-3-2"><span class="section-number-4">4.3.2</span> Point and Buffer</h4>
+<div class="outline-text-4" id="text-4-3-2">
+<p>
+These macros are extensions of `with-current-buffer', and `save-excursion',
+which set the current buffer and location.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #00ffff;">defmacro</span> <span style="color: #87cefa;">m-buffer-with-current-marker</span>
+    (marker <span style="color: #98fb98;">&amp;rest</span> body)
+  <span style="color: #ffa07a;">"At MARKER location run BODY."</span>
+  (<span style="color: #00ffff;">declare</span> (indent 1) (debug t))
+  `(<span style="color: #00ffff;">with-current-buffer</span>
+       (marker-buffer ,marker)
+     (<span style="color: #00ffff;">save-excursion</span>
+       (goto-char ,marker)
+       ,@body)))
+
+(<span style="color: #00ffff;">defmacro</span> <span style="color: #87cefa;">m-buffer-with-current-position</span>
+    (buffer location <span style="color: #98fb98;">&amp;rest</span> body)
+  <span style="color: #ffa07a;">"In BUFFER at LOCATION, run BODY."</span>
+  (<span style="color: #00ffff;">declare</span> (indent 2)
+           (debug t))
+  `(<span style="color: #00ffff;">with-current-buffer</span>
+       ,buffer
+     (<span style="color: #00ffff;">save-excursion</span>
+       (goto-char ,location)
+      ,@body)))
+</pre>
+</div>
+
+<p>
+Combines the last two!
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #00ffff;">defmacro</span> <span style="color: #87cefa;">m-buffer-with-current-location</span>
+    (location <span style="color: #98fb98;">&amp;rest</span> body)
+  <span style="color: #ffa07a;">"At LOCATION, run BODY.</span>
+<span style="color: #ffa07a;">LOCATION should be a list. If a one element list, it is a marker.</span>
+<span style="color: #ffa07a;">If a two element, it is a buffer and position."</span>
+  (<span style="color: #00ffff;">declare</span> (indent 1) (debug t))
+  <span style="color: #ff7f24;">;; </span><span style="color: #ff7f24;">multiple eval of location!</span>
+  (<span style="color: #00ffff;">let</span> ((loc (make-symbol <span style="color: #ffa07a;">"loc"</span>)))
+    `(<span style="color: #00ffff;">let</span> ((,loc ,location))
+       (<span style="color: #00ffff;">if</span> (= 1 (length ,loc))
+           (<span style="color: #00ffff;">m-buffer-with-current-marker</span>
+               (nth 0 ,loc)
+             ,@body)
+         (<span style="color: #00ffff;">if</span> (= 2 (length ,loc))
+             (<span style="color: #00ffff;">m-buffer-with-current-position</span>
+                 (nth 0 ,loc)
+                 (nth 1 ,loc)
+               ,@body)
+           (<span style="color: #ffc0cb; font-weight: bold;">error</span> <span style="color: #ffa07a;">"m-buffer-with-current-location requires a list of one or two </span><span style="color: #ee82ee; background-color: #333333;">elements"</span><span style="color: #ee82ee; background-color: #333333;">))))))</span>
+
+(<span style="color: #00ffff;">provide</span> '<span style="color: #7fffd4;">m-buffer-macro</span>)
+<span style="color: #ff7f24;">;;; </span><span style="color: #ff7f24;">m-buffer-macro.el ends here</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-sec-5" class="outline-2">
+<h2 id="sec-5"><span class="section-number-2">5</span> m-buffer-benchmark</h2>
+<div class="outline-text-2" id="text-5">
+<p>
+m-buffer-benchmark.el provides no functions, but is a set of benchmarks to
+give some idea of how much overhead various m-buffer functions entail.
+</p>
+
+<p>
+;;
+</p>
+</div>
+
+<div id="outline-container-sec-5-1" class="outline-3">
+<h3 id="sec-5-1"><span class="section-number-3">5.1</span> Benchmarking</h3>
+<div class="outline-text-3" id="text-5-1">
+<p>
+This file is not meant a emacs package, but for benchmarking m-buffer.
+To hide Emacs' there are lots of places where m-buffer saves, changes and then
+restores this global state. One obvious question is what impact does this have
+on performance. We check this here.
+</p>
+</div>
+
+<div id="outline-container-sec-5-1-1" class="outline-4">
+<h4 id="sec-5-1-1"><span class="section-number-4">5.1.1</span> Evaluation</h4>
+<div class="outline-text-4" id="text-5-1-1">
+<p>
+The results of running these forms are "pre-evaluated", because this file
+forms part of the lentic documentation for m-buffer. We could evaluate
+these at export time but, by default, this form of evaluation is blocked.
+Moreover, it can be quite slow which would be less than ideal with
+lentic-server.
+</p>
+
+<p>
+To evaluate on the local machine use `org-babel-execute-buffer', probably
+after setting `org-confirm-babel-evaluate' to nil.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-5-1-2" class="outline-4">
+<h4 id="sec-5-1-2"><span class="section-number-4">5.1.2</span> Support</h4>
+<div class="outline-text-4" id="text-5-1-2">
+<p>
+Build a nice simple bench macro.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #00ffff;">defmacro</span> <span style="color: #87cefa;">bench</span>
+    (<span style="color: #98fb98;">&amp;rest</span> body)
+  `(format <span style="color: #ffa07a;">"%e"</span>
+           (car
+            (<span style="color: #00ffff;">benchmark-run-compiled</span>
+             1000000
+             (<span style="color: #00ffff;">progn</span>
+               ,@body)))))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-5-1-3" class="outline-4">
+<h4 id="sec-5-1-3"><span class="section-number-4">5.1.3</span> How Long does it take to change current-buffer</h4>
+<div class="outline-text-4" id="text-5-1-3">
+</div><ol class="org-ol"><li><a id="sec-5-1-3-1" name="sec-5-1-3-1"></a>Entering and Restoring<br  /><div class="outline-text-5" id="text-5-1-3-1">
+<p>
+There are lots of places where we set the current buffer, do something, then
+get the result again, so understanding how long this takes is important.
+So, how long does it take to set and restore the current buffer.
+</p>
+
+<p>
+It's quite a bit slower &#x2013; about an order of magnitude.
+</p>
+</div>
+
+<ol class="org-ol"><li><a id="sec-5-1-3-1-1" name="sec-5-1-3-1-1"></a>Implementation<br  /><div class="outline-text-6" id="text-5-1-3-1-1">
+<p>
+We get the `current-buffer' and `point'. In the first case, we also do
+this inside a `with-current-buffer'.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(bench
+ (<span style="color: #00ffff;">with-current-buffer</span>
+     (current-buffer)
+   (point)))
+</pre>
+</div>
+
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(bench
+ (current-buffer)
+ (point))
+</pre>
+</div>
+</div>
+</li></ol>
+</li>
+
+
+<li><a id="sec-5-1-3-2" name="sec-5-1-3-2"></a>Does buffer context help<br  /><div class="outline-text-5" id="text-5-1-3-2">
+<p>
+Is `with-current-buffer' quicker if we are already in the current-buffer?
+This is interesting to know because if it is, grouping several commands
+that operate on a single would run much faster.
+</p>
+
+<p>
+We test this by entering having two `with-current-buffer' calls which do
+nothing, one nested and one not. Our conclusion is, no, it makes not
+difference, so there is little pointing in putting a grouping construct in,
+unless we do something intelligent.
+</p>
+
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(bench
+ (<span style="color: #00ffff;">with-current-buffer</span>
+     (current-buffer)
+   (<span style="color: #00ffff;">with-current-buffer</span>
+       (current-buffer))))
+</pre>
+</div>
+
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(bench
+ (<span style="color: #00ffff;">with-current-buffer</span>
+     (current-buffer))
+ (<span style="color: #00ffff;">with-current-buffer</span>
+     (current-buffer)))
+</pre>
+</div>
+</div>
+</li>
+
+<li><a id="sec-5-1-3-3" name="sec-5-1-3-3"></a>How fast is point<br  /><div class="outline-text-5" id="text-5-1-3-3">
+<p>
+m-buffer-at provides stateless functions, but how much overhead does this
+introduce. We try this with the simplest function I can think of, which is
+point. The various forms look different here &#x2013; because we have a
+`current-buffer' call in, but not with `point'. But then, effectively,
+`point' must call `current-buffer' somewhere as part of its implementation,
+so this difference is fair.
+</p>
+
+<p>
+We conclude that m-buffer is about 100x slower for calling `point', even
+when the buffer does not actually need to be changed. So, a lot slower.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(bench
+ (point))
+</pre>
+</div>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(bench
+ (<span style="color: #00ffff;">with-current-buffer</span>
+     (current-buffer)
+   (point)))
+</pre>
+</div>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(bench
+ (m-buffer-at-point
+  (current-buffer)))
+</pre>
+</div>
+</div>
+</li></ol>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-6" class="outline-2">
+<h2 id="sec-6"><span class="section-number-2">6</span> Roadmap</h2>
+<div class="outline-text-2" id="text-6">
+</div><div id="outline-container-sec-6-1" class="outline-3">
+<h3 id="sec-6-1"><span class="section-number-3">6.1</span> 0.11</h3>
+<div class="outline-text-3" id="text-6-1">
+<p>
+Full lentic documentation using lentic-server
+</p>
+</div>
+</div>
+
+
+<div id="outline-container-sec-6-2" class="outline-3">
+<h3 id="sec-6-2"><span class="section-number-3">6.2</span> 0.12</h3>
+<div class="outline-text-3" id="text-6-2">
+<p>
+Completion of m-buffer-at with all the core buffer functions.
+</p>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: Phillip Lord</p>
+<p class="date">Created: 2016-07-14 Thu 19:16</p>
+<p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.0.95.4 (<a href="http://orgmode.org">Org</a> mode 8.2.10)</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
