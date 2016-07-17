@@ -12,14 +12,16 @@ point locations so that it is possible, for example, to search for regexp
 matches and then replace them all without the early replacement invalidating
 the location of the later ones.
 
-m-buffer is now documented with
-[Lentic Server](https://github.com/phillord/lentic-server).
+m-buffer is now documented at http://phillord.github.io/m-buffer-el/ or live
+in Emacs with [Lentic Server](https://github.com/phillord/lentic-server).
 
 
 ## Status
 
 The code is now in active use. APIs are open to change, but I am not intending
 to.
+
+Version 0.14 is the last version to support Emacs-24.
 
 ## Contributions
 
@@ -30,6 +32,8 @@ with the FSF.
 
 
 ## Change Log
+
+### NEXT
 
 ### 0.14
 

@@ -23,7 +23,21 @@ test: install just-test
 
 
 doc-gen:
-	$(EMACS_ENV) $(CASK) exec $(EMACS) --debug --script dev/doc-gen.el -f doc-gen
+	$(EMACS_ENV) $(CASK) emacs \
+	--directory=. \
+	--script dev/doc-gen.el -f doc-gen
+
+publish-doc: ../m-buffer-pages/index.html ../m-buffer-pages/m-buffer-doc.css
+
+../m-buffer-pages/m-buffer-doc.css: m-buffer-doc.css
+	cp $< $@
+
+../m-buffer-pages/index.html: m-buffer-doc.html
+	perl -p -e 's#["]http://orgmode.org/org-info.js#"./org-info.js#' \
+	$< > $@
+
+m-buffer-doc.html: m-buffer-doc.org m-buffer.el m-buffer-at.el m-buffer-macro.el
+	$(MAKE) doc-gen
 
 clean:
 	find . -name "m-buffer*org" -not -name "m-buffer-doc.org" \

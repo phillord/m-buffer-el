@@ -5,5 +5,7 @@
 (files "m-buffer*el" "m-buffer*els")
 
 (development
+ (depends-on "htmlize")
+ (depends-on "lentic")
  (depends-on "load-relative")
  (depends-on "assess"))
