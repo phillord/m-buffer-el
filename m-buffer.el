@@ -65,8 +65,6 @@
 ;; #+begin_src emacs-lisp
 (require 'seq)
 (require 'm-buffer-macro)
-
-(defvar m-buffer-doc-html-files '("m-buffer-doc.css"))
 ;; #+end_src
 
 ;; ** Regexp Matching
