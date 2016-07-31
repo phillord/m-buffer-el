@@ -21,6 +21,8 @@ just-test:
 
 test: install just-test
 
+package:
+	$(EMACS_ENV) $(CASK) package
 
 doc-gen:
 	$(EMACS_ENV) $(CASK) emacs \
