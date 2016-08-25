@@ -7,7 +7,7 @@
 ;; Author: Phillip Lord <phillip.lord@russet.org.uk>
 ;; Maintainer: Phillip Lord <phillip.lord@russet.rg.uk>
 ;; Version: 0.14
-;; Package-Requires: ((emacs "25.0"))
+;; Package-Requires: ((seq))
 
 ;; The contents of this file are subject to the GPL License, Version 3.0.
 
