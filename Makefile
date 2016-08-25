@@ -16,7 +16,7 @@ install:
 just-test:
 	$(EMACS_ENV) $(CASK) emacs --batch -q \
 	--directory=. \
-	--load "assess-discover" \
+	--load "dev/assess-discover" \
 	--funcall assess-discover-run-and-exit-batch
 
 test: install just-test
