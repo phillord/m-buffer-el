@@ -7,7 +7,7 @@
 ;; Author: Phillip Lord <phillip.lord@russet.org.uk>
 ;; Maintainer: Phillip Lord <phillip.lord@russet.rg.uk>
 ;; Version: 0.14
-;; Package-Requires: ((seq "2.14")))
+;; Package-Requires: ((seq "2.14"))
 
 ;; The contents of this file are subject to the GPL License, Version 3.0.
 
@@ -65,6 +65,11 @@
 ;; #+begin_src emacs-lisp
 (require 'seq)
 (require 'm-buffer-macro)
+
+(when (not
+     (fboundp 'seqp))
+  (defalias 'seqp #'sequencep))
+
 ;; #+end_src
 
 ;; ** Regexp Matching
