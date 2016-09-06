@@ -66,6 +66,7 @@
 (require 'seq)
 (require 'm-buffer-macro)
 
+;; This is a bug fix for seq-24.el in elpa, which calls this function `seq-p'.
 (when (not
      (fboundp 'seqp))
   (defalias 'seqp #'sequencep))
