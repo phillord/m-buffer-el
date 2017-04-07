@@ -21,7 +21,8 @@ in Emacs with [Lentic Server](https://github.com/phillord/lentic-server).
 The code is now in active use. APIs are open to change, but I am not intending
 to.
 
-Version 0.14 is the last version to support Emacs-24.
+Version 0.14 did not support Emacs-24, which unintentionally broke assess.el
+which needs to work on these platforms. Emacs-24 is now supported again.
 
 ## Contributions
 
@@ -33,7 +34,9 @@ with the FSF.
 
 ## Change Log
 
-### NEXT
+### 0.15
+
+Support Emacs-24 again
 
 ### 0.14
 
