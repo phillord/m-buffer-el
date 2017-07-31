@@ -1,4 +1,4 @@
-;;; assess-discover.el --- Test support functions -*- lexical-binding: t -*-
+;;; fudge-discover.el --- Test support functions -*- lexical-binding: t -*-
 
 ;;; Header:
 
@@ -26,7 +26,9 @@
 
 ;;; Code:
 
-(defun assess-discover-tests (directory)
+
+;; #+begin_src emacs-lisp
+(defun fudge-discover-tests (directory)
   "Discover tests in directory.
 
 Tests must conform to one (and only one!) of several naming
@@ -61,23 +63,25 @@ tests directory."
           (concat dir-tests file))
         (directory-files dir-tests nil ".*.el"))))))
 
-(defun assess-discover--load-all-tests (directory)
+(defun fudge-discover--load-all-tests (directory)
   (mapc
    'load
-   (assess-discover-tests directory)))
+   (fudge-discover-tests directory)))
 
-(defun assess-discover-load-tests ()
+(defun fudge-discover-load-tests ()
   (interactive)
-  (assess-discover--load-all-tests default-directory))
+  (fudge-discover--load-all-tests default-directory))
 
 ;;;###autoload
-(defun assess-discover-run-batch (&optional selector)
-  (assess-discover--load-all-tests default-directory)
+(defun fudge-discover-run-batch (&optional selector)
+  (fudge-discover--load-all-tests default-directory)
   (ert-run-tests-batch selector))
 
 ;;;###autoload
-(defun assess-discover-run-and-exit-batch (&optional selector)
-  (assess-discover--load-all-tests default-directory)
+(defun fudge-discover-run-and-exit-batch (&optional selector)
+  (fudge-discover--load-all-tests default-directory)
   (ert-run-tests-batch-and-exit selector))
 
-(provide 'assess-discover)
+(provide 'fudge-discover)
+;;; fudge-discover.el ends here
+;; #+end_src

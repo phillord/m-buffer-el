@@ -18,8 +18,8 @@ install:
 just-test:
 	$(EMACS_ENV) $(CASK) emacs --batch -q \
 	--directory=. \
-	--load "dev/assess-discover" \
-	--funcall assess-discover-run-and-exit-batch
+	--load "dev/fudge-discover" \
+	--funcall fudge-discover-run-and-exit-batch
 
 test: install just-test
 
@@ -56,5 +56,6 @@ multi-test:
 	make EMACS=$(EMACSES)/emacs-24.4/src/emacs test
 	make EMACS=$(EMACSES)/emacs-24.3/src/emacs test
 	make EMACS=$(EMACSES)/emacs-24.2/src/emacs test
+	make EMACS=$(EMACSES)/emacs-24.1/src/emacs test
 
 .PHONY: test
