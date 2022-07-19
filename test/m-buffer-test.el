@@ -1,8 +1,8 @@
-;;; m-buffer-test.el --- Tests for m-buffer
+;;; m-buffer-test.el --- Tests for m-buffer  -*- lexical-binding: t; -*-
 
 ;; The contents of this file are subject to the GPL License, Version 3.0.
 ;;
-;; Copyright (C) 2014, Phillip Lord, Newcastle University
+;; Copyright (C) 2014-2022  Free Software Foundation, Inc.
 ;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -89,9 +89,9 @@
 
 (defun m-buffer--flatten (l)
   (if (listp l)
-      (apply 'append
+      (apply #'append
        (seq-map
-        'm-buffer--flatten l))
+        #'m-buffer--flatten l))
     (list l)))
 
 (ert-deftest m-buffer-matches ()
@@ -105,7 +105,7 @@
          "^one$")))))
   (should
    (seq-every-p
-    'markerp
+    #'markerp
     (m-buffer--flatten
      (m-buffer-wtb-of-file
       "match-data.txt"
@@ -116,7 +116,7 @@
 (ert-deftest m-buffer-match-begin ()
   (should
    (seq-every-p
-    'markerp
+    #'markerp
     (m-buffer-wtb-of-file
      "match-data.txt"
      (m-buffer-match-begin

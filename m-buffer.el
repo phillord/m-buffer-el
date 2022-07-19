@@ -11,7 +11,7 @@
 
 ;; The contents of this file are subject to the GPL License, Version 3.0.
 
-;; Copyright (C) 2014, 2015, 2016, 2017 Phillip Lord
+;; Copyright (C) 2014-2022  Free Software Foundation, Inc.
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -106,7 +106,7 @@ the :end value will be used.
 REGEXP should advance point (i.e. not be zero-width) or the
 function will loop infinitely. POST-MATCH can be used to avoid
 this. The buffer is searched forward."
-  (apply 'm-buffer--match-1
+  (apply #'m-buffer--match-1
          (m-buffer--normalize-args match)))
 ;; #+end_src
 
@@ -307,7 +307,7 @@ args, assume they are of the form accepted by
    ((= 1 (length match))
     (car match))
    ((< 1 (length match))
-    (apply 'm-buffer-match match))
+    (apply #'m-buffer-match match))
    (t
     (error "Invalid arguments"))))
 ;; #+end_src
@@ -341,7 +341,7 @@ or they will slow future use of the buffer until garbage collected."
    (lambda (m)
      (nth
       (* 2 n) m))
-   (apply 'm-buffer-ensure-match match)))
+   (apply #'m-buffer-ensure-match match)))
 
 (defun m-buffer-match-begin-n-pos (n &rest match)
   "Return positions of the start of the Nth group in MATCH.
@@ -349,7 +349,7 @@ MATCH may be of any form accepted by `m-buffer-ensure-match'. If
 `match-data' is passed markers will be set to nil after this
 function. See `m-buffer-nil-marker' for details."
   (m-buffer-marker-to-pos-nil
-   (apply 'm-buffer-match-begin-n
+   (apply #'m-buffer-match-begin-n
           n match)))
 
 (defun m-buffer-match-begin (&rest match)
@@ -357,14 +357,14 @@ function. See `m-buffer-nil-marker' for details."
 MATCH may of any form accepted by `m-buffer-ensure-match'. Use
 `m-buffer-nil-marker' after the markers have been used or they
 will slow future changes to the buffer."
-  (apply 'm-buffer-match-begin-n 0 match))
+  (apply #'m-buffer-match-begin-n 0 match))
 
 (defun m-buffer-match-begin-pos (&rest match)
   "Return a list of positions at the start of matcher.
 MATCH may be of any form accepted by `m-buffer-ensure-match'.
 If `match-data' is passed markers will be set to nil after this
 function. See `m-buffer-nil-marker' for details."
-  (apply 'm-buffer-match-begin-n-pos 0 match))
+  (apply #'m-buffer-match-begin-n-pos 0 match))
 
 (defun m-buffer-match-end-n (n &rest match)
   "Return markers to the end of the match to the Nth group.
@@ -376,7 +376,7 @@ function. See `m-buffer-nil-marker' for details."
      (nth
       (+ 1 (* 2 n))
       m))
-   (apply 'm-buffer-ensure-match match)))
+   (apply #'m-buffer-ensure-match match)))
 
 (defun m-buffer-match-end-n-pos (n &rest match)
   "Return positions of the end Nth group of MATCH.
@@ -384,7 +384,7 @@ MATCH may be of any form accepted by `m-buffer-ensure-match'.
 If `match-data' is passed markers will be set to nil after this
 function. See `m-buffer-nil-marker' for details."
   (m-buffer-marker-to-pos-nil
-   (apply 'm-buffer-match-end-n-pos
+   (apply #'m-buffer-match-end-n-pos
           n match)))
 
 (defun m-buffer-match-end (&rest match)
@@ -392,7 +392,7 @@ function. See `m-buffer-nil-marker' for details."
 MATCH may be of any form accepted by `m-buffer-ensure-match'. Use
 `m-buffer-nil-marker' after the markers have been used or they
 will slow future changes to the buffer."
-  (apply 'm-buffer-match-end-n 0 match))
+  (apply #'m-buffer-match-end-n 0 match))
 
 (defun m-buffer-match-end-pos (&rest match)
   "Return a list of positions to the end of the match.
@@ -400,7 +400,7 @@ MATCH may be of any form accepted by `m-buffer-ensure-match'.
 If `match-data' is passed markers will be set to nil after this
 function. See `m-buffer-nil-marker' for details."
   (m-buffer-marker-to-pos-nil
-   (apply 'm-buffer-match-end match)))
+   (apply #'m-buffer-match-end match)))
 ;; #+end_src
 
 ;; ** Match Utility and Predicates
@@ -661,7 +661,7 @@ markers are part of MATCH_DATA, so niling them will percolate backward."
   "Return strings for MATCH-DATA optionally of group SUBEXP.
 Remove all properties from return."
   (seq-map
-   'substring-no-properties
+   #'substring-no-properties
    (m-buffer-match-string
     match-data subexp)))
 ;; #+end_src
@@ -689,7 +689,7 @@ Remove all properties from return."
          match))
        (more-keywords
         (seq-map
-         'car
+         #'car
          (seq-partition more-match 2))))
     (when
         (seq-find
@@ -858,8 +858,8 @@ Note empty lines do not contain any non-whitespace lines.
 MATCH is of form BUFFER-OR-WINDOW MATCH-OPTIONS. See
 `m-buffer-match' for further details."
   (seq-difference
-   (apply 'm-buffer-match-line match)
-   (apply 'm-buffer-match-whitespace-line match)))
+   (apply #'m-buffer-match-line match)
+   (apply #'m-buffer-match-whitespace-line match)))
 
 ;; Useful post-match functions
 (defun m-buffer-post-match-forward-line ()

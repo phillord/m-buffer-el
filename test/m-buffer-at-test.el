@@ -1,3 +1,7 @@
+;; -*- lexical-binding: t; -*-
+
+;; Copyright (C) 2014-2022  Free Software Foundation, Inc.
+
 (require 'm-buffer-at)
 
 (ert-deftest m-buffer-at-eolp-1()

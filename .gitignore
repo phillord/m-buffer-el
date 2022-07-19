@@ -5,4 +5,7 @@ m-buffer*org
 *elc
 /dist/
 /org/
-m-buffer-pkg.el
+
+# ELPA-generated files
+/m-buffer-pkg.el
+/m-buffer-autoloads.el

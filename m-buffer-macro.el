@@ -6,7 +6,7 @@
 
 ;; The contents of this file are subject to the GPL License, Version 3.0.
 
-;; Copyright (C) 2014, Phillip Lord, Newcastle University
+;; Copyright (C) 2014-2022  Free Software Foundation, Inc.
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -54,7 +54,7 @@ after BODY."
   ;; so, create a rtn var with make-symbol (for hygene)
   (let* ((rtn-var (make-symbol "rtn-var"))
          (marker-vars
-          (mapcar 'car varlist))
+          (mapcar #'car varlist))
          (full-varlist
           (append
            varlist
