@@ -6,4 +6,5 @@
 
 (development
  (depends-on "htmlize")
+ (depends-on "lentic")
  (depends-on "load-relative"))
