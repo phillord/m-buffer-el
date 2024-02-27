@@ -6,7 +6,7 @@ EMACSES=there-is-no-sensible-default-here
 -include makefile-local
 
 ifdef EMACS
-EMACS_ENV=EMACS=$(EMACS)
+EMACS_ENV=EMACS="$(EMACS)"
 endif
 
 
@@ -16,9 +16,9 @@ install:
 	$(EMACS_ENV) $(CASK) install
 
 just-test:
-	$(EMACS_ENV) $(CASK) emacs --batch -q \
-	--directory=. \
-	--load "dev/fudge-discover" \
+	$(EMACS_ENV) $(CASK) $(EMACS) --batch \
+	--directory="$(PWD)" 		      \
+	--load "dev/fudge-discover" 	      \
 	--funcall fudge-discover-run-and-exit-batch
 
 test: install just-test
@@ -27,9 +27,9 @@ package:
 	$(EMACS_ENV) $(CASK) package
 
 doc-gen:
-	$(EMACS_ENV) $(CASK) emacs \
-	--directory=. \
-	--script dev/doc-gen.el -f doc-gen
+	$(EMACS_ENV) $(CASK) $(EMACS) --batch \
+	--directory="$(PWD)" 	      	      \
+	-l dev/doc-gen.el -f doc-gen
 
 publish-doc: ../m-buffer-pages/index.html ../m-buffer-pages/m-buffer-doc.css
 

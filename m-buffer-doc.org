@@ -1,6 +1,12 @@
 
 #+TITLE: Manipulate the Contents of Emacs Buffers
 #+AUTHOR: Phillip Lord
+#+TEXINFO_DIR_CATEGORY: Emacs
+
+# FIXME: Shouldn't `ox-texinfo` use sane defaults like the file's name
+#        for TEXINFO_DIR_TITLE and the TITLE for TEXINFO_DIR_DESC?
+#+TEXINFO_DIR_TITLE: m-buffer-doc
+#+TEXINFO_DIR_DESC: Manipulate the Contents of Emacs Buffers
 
 #+INFOJS_OPT: view:info toc:nil
 

@@ -1,12 +1,10 @@
 ;; -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2022  Free Software Foundation, Inc.
+;; Copyright (C) 2022-2024  Free Software Foundation, Inc.
 
-(require 'load-relative)
-
-(require-relative "../m-buffer-macro")
-(require-relative "../m-buffer")
-(require-relative "../m-buffer-at")
+(require 'm-buffer-macro)
+(require 'm-buffer)
+(require 'm-buffer-at)
 
 (require 'lentic-doc nil t)
 
