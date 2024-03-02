@@ -6,12 +6,12 @@
 
 ;; Author: Phillip Lord <phillip.lord@russet.org.uk>
 ;; Maintainer: Phillip Lord <phillip.lord@russet.rg.uk>
-;; Version: 0.15
+;; Version: 0.16
 ;; Package-Requires: ((seq "2.14"))
 
 ;; The contents of this file are subject to the GPL License, Version 3.0.
 
-;; Copyright (C) 2014-2022  Free Software Foundation, Inc.
+;; Copyright (C) 2014-2024  Free Software Foundation, Inc.
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
