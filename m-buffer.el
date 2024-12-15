@@ -6,7 +6,7 @@
 
 ;; Author: Phillip Lord <phillip.lord@russet.org.uk>
 ;; Maintainer: Phillip Lord <phillip.lord@russet.rg.uk>
-;; Version: 0.16
+;; Version: 0.16.1
 ;; Package-Requires: ((seq "2.14"))
 
 ;; The contents of this file are subject to the GPL License, Version 3.0.
